@@ -11,11 +11,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 def init_driver():
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
-    # options.add_argument("--no-sandbox")
-    # options.add_argument("--disable-gpu")
-    # options.add_argument("--window-size=1920x1080")
-    # options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920x1080")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--verbose")
+    options.add_argument("--log-path=chromedriver.log")
     service = webdriver.chrome.service.Service(ChromeDriverManager().install())
     return webdriver.Chrome(service=service, options=options)
 
@@ -48,6 +50,7 @@ def main():
     driver = init_driver()
     driver.get("https://m.hzmk.site/")
     wait = WebDriverWait(driver, 10)
+    print("open driver")
     try:
         click_element(wait, By.ID, "privacy-confirm-ele")
         click_element(wait, By.CLASS_NAME, "close")
@@ -59,7 +62,7 @@ def main():
 
         send_keys_to_element(wait, By.CSS_SELECTOR, ".LoginForm-Component .phone-number-box input", "1016220238")
         send_keys_to_element(wait, By.CSS_SELECTOR, ".LoginForm-Component .password-tab input", "m3290900a")
-
+        print("Fill Data")
         time.sleep(3)
         slider_track = wait.until(
             EC.visibility_of_element_located((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textele")))
@@ -68,13 +71,21 @@ def main():
 
         submit_login = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn-sumbit")))
         submit_login.click()
-
+        print("logined in")
         time.sleep(2)
         driver.get("https://m.hzmk.site/1003946142")
         time.sleep(2)
+        print("navigate to live")
         textarea = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "textarea")))
-        textarea.send_keys("Hallo da bin ich wieder")
+        textarea.send_keys("Hallo Hallo da bin ich wieder :)")
         textarea.send_keys(Keys.ENTER)
+        print("Write The Comment")
+
+        time.sleep(7)
+        textarea = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "textarea")))
+        textarea.send_keys("Hallo Hallo da bin ich wieder :) 2")
+        textarea.send_keys(Keys.ENTER)
+        print("Write The Comment 2")
     except Exception as e:
         print(f"Error during execution: {str(e)}")
     finally:
