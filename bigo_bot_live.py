@@ -11,6 +11,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 def init_driver():
     options = webdriver.ChromeOptions()
+    proxy = "customer-abdel9:Admin_2050Pass@pr.oxylabs.io:7777"
+    options.add_argument(f'--proxy-server=http://{proxy}')
+
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
@@ -18,6 +21,8 @@ def init_driver():
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--verbose")
     options.add_argument("--log-path=chromedriver.log")
+
+
     service = webdriver.chrome.service.Service(ChromeDriverManager().install())
     return webdriver.Chrome(service=service, options=options)
 
