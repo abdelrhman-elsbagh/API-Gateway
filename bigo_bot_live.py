@@ -60,14 +60,18 @@ def main():
         send_keys_to_element(wait, By.CSS_SELECTOR, ".LoginForm-Component .phone-number-box input", "1016220238")
         send_keys_to_element(wait, By.CSS_SELECTOR, ".LoginForm-Component .password-tab input", "m3290900a")
 
+        time.sleep(3)
         slider_track = wait.until(
             EC.visibility_of_element_located((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textele")))
         perform_captcha_action(driver, wait, slider_track.size['width'])
+        time.sleep(2)
 
         submit_login = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn-sumbit")))
         submit_login.click()
 
-        driver.get("https://m.hzmk.site/901584560")
+        time.sleep(2)
+        driver.get("https://m.hzmk.site/1003946142")
+        time.sleep(2)
         textarea = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "textarea")))
         textarea.send_keys("Hallo da bin ich wieder")
         textarea.send_keys(Keys.ENTER)
