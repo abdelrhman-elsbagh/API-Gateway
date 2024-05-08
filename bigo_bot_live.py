@@ -13,7 +13,6 @@ def init_driver():
     options = webdriver.ChromeOptions()
     proxy = "customer-abdel9:Admin_2050Pass@pr.oxylabs.io:7777"
     options.add_argument(f'--proxy-server=http://{proxy}')
-
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
@@ -53,7 +52,9 @@ def perform_captcha_action(driver, wait, track_width):
 
 def main():
     driver = init_driver()
+    print("driver", driver)
     driver.get("https://m.hzmk.site/")
+    print('driver2', driver)
     wait = WebDriverWait(driver, 10)
     print("open driver")
     try:
