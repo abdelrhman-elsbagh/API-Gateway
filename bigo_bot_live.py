@@ -46,8 +46,7 @@ def init_driver():
 
     # Create the driver with the configured options
     service = webdriver.chrome.service.Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
+    return webdriver.Chrome(service=service, options=options)
 
 
 def click_element(wait, by_type, identifier, delay_time=0.2):
