@@ -9,6 +9,22 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 
+# def init_driver():
+#     options = webdriver.ChromeOptions()
+#     proxy = "customer-abdel9:Admin_2050Pass@pr.oxylabs.io:7777"
+#     options.add_argument(f'--proxy-server=http://{proxy}')
+#     options.add_argument("--headless")
+#     options.add_argument("--no-sandbox")
+#     options.add_argument("--disable-gpu")
+#     options.add_argument("--window-size=1920x1080")
+#     options.add_argument("--disable-dev-shm-usage")
+#     options.add_argument("--verbose")
+#     options.add_argument("--log-path=chromedriver.log")
+#
+#
+#     service = webdriver.chrome.service.Service(ChromeDriverManager().install())
+#     return webdriver.Chrome(service=service, options=options)
+
 def init_driver():
     options = webdriver.ChromeOptions()
     proxy = "customer-abdel9:Admin_2050Pass@pr.oxylabs.io:7777"
@@ -21,9 +37,9 @@ def init_driver():
     options.add_argument("--verbose")
     options.add_argument("--log-path=chromedriver.log")
 
-
     service = webdriver.chrome.service.Service(ChromeDriverManager().install())
-    return webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Chrome(service=service, options=options)
+    return driver
 
 
 def click_element(wait, by_type, identifier, delay_time=0.2):
