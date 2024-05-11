@@ -27,22 +27,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 def init_driver():
     options = webdriver.ChromeOptions()
-
-    # Set up the proxy
-    username = 'abdel9'
-    password = 'Admin_2050Pass'
-    proxy_server = 'pr.oxylabs.io:7777'
-    proxy_auth = f'customer-{username}:{password}@{proxy_server}'
-    options.add_argument(f'--proxy-server=http://{proxy_auth}')
-
     # Additional options for headless mode and performance
     # options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920x1080")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--verbose")
-    options.add_argument("--log-path=chromedriver.log")
+    # options.add_argument("--disable-gpu")
+    # options.add_argument("--no-sandbox")
+    # options.add_argument("--window-size=1920x1080")
+    # options.add_argument("--disable-dev-shm-usage")
+    # options.add_argument("--verbose")
+    # options.add_argument("--log-path=chromedriver.log")
 
     # Create the driver with the configured options
     service = webdriver.chrome.service.Service(ChromeDriverManager().install())
