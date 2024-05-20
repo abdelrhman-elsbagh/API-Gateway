@@ -1,9 +1,12 @@
 import json
+import os
 import threading
 import time
+from multiprocessing import Pool, Lock
 
 import requests
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.service import Service
@@ -13,17 +16,18 @@ from webdriver_manager.chrome import ChromeDriverManager
 import random
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
 import concurrent.futures
-
 ##############################################
-# from selenium import __version__ as seleniumversion
-# from seleniumwire import __version__ as seleniumwireversion
-# from selenium.webdriver.chrome.service import Service
-# from seleniumwire import webdriver
-# # A package to have a chromedriver always up-to-date.
-# from webdriver_manager.chrome import ChromeDriverManager
-# from webdriver_manager import __version__ as webdriver_manager_version
+from selenium import __version__ as seleniumversion
+from seleniumwire import __version__ as seleniumwireversion
+from selenium.webdriver.chrome.service import Service
+from seleniumwire import webdriver
+# A package to have a chromedriver always up-to-date.
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager import __version__ as webdriver_manager_version
+
 ##############################################
 
 USERNAME = "abdel9"
@@ -44,7 +48,6 @@ bigo_live_set = set()
 global driver_map
 driver_map = {}
 
-
 def close_unlisted_accounts(current_ids):
     global driver_map, bigo_live_set
     to_remove = []
@@ -58,7 +61,6 @@ def close_unlisted_accounts(current_ids):
             to_remove.append(account_id)
     for account_id in to_remove:
         bigo_live_set.remove(account_id)
-
 
 def fetch_accounts(api_url):
     response = requests.get(api_url)
@@ -76,7 +78,6 @@ def fetch_comments(api_url):
     else:
         print(f"Failed to fetch accounts: {response.status_code}")
         return []
-
 
 def update_accounts():
     global bigo_accounts, bigo_live_set, bigo_live, live_id
@@ -130,89 +131,57 @@ def wait_for_element(driver, locator):
 
 
 def move_slider(action, track_width):
-    print("WIDCTH: ** ", track_width)
-    move_step = track_width // 15  # Using smaller, more precise steps
-    step = 0.1
-    print("move_step** ", move_step)
-    print("step** ", step)
+    move_step = track_width // 20  # Using smaller, more precise steps
     for i in range(25):
         action.move_by_offset(move_step, 0)  # Move horizontally without vertical deviation
-        action.pause(step)
-        # action.pause(random.uniform(0.05, 0.1))
-        # action.pause(0.15)
-        delay(0.01)
+        action.pause(random.uniform(0.05, 0.1))
 
+def handle_slider_verification(driver):
+    try:
+        print("Verifying captcha slider...")
+        slider_track = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textele"))
+        )
+        track_width = slider_track.size['width']
 
-def handle_slider_verification(driver, max_retries=4):
-    retry_count = 0
-    while retry_count < max_retries:
-        try:
-            print("Verifying captcha slider...")
-            slider_track = WebDriverWait(driver, 10).until(
-                EC.visibility_of_element_located((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textele"))
+        slider_handle = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-sliderele"))
+        )
+        action = ActionChains(driver)
+        action.click_and_hold(slider_handle)
+
+        move_slider(action, track_width)
+        action.release().perform()
+
+        captcha_text_element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(
+                (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textelediv"))
+        )
+        captcha_text = captcha_text_element.text
+        print("Captcha Text:", captcha_text)
+
+        if 'failed' in captcha_text:
+            print("Retrying captcha verification...")
+            retry_confirm_element = WebDriverWait(driver, 40).until(
+                EC.element_to_be_clickable(
+                    (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-refreshele"))
             )
-            track_width = slider_track.size['width']
+            retry_confirm_element.click()
+            time.sleep(2)
+            handle_slider_verification(driver)
 
-            slider_handle = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-sliderele"))
-            )
-            action = ActionChains(driver)
-            action.click_and_hold(slider_handle)
+        elif 'Verification successful' not in captcha_text:
+            print("Captcha verification failed.")
+            driver.quit()
+            return False
 
-            move_slider(action, track_width)
-            action.release().perform()
+        print("Captcha verification successful.")
+        return True
 
-            captcha_text_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textelediv"))
-            )
-            captcha_text = captcha_text_element.text
-            print("Captcha Text:", captcha_text)
-
-            if 'failed' in captcha_text:
-                print("Captcha verification failed, retrying...")
-                retry_count += 1
-                if retry_count < max_retries:
-                    retry_confirm_element = WebDriverWait(driver, 40).until(
-                        EC.element_to_be_clickable(
-                            (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-refreshele"))
-                    )
-                    retry_confirm_element.click()
-                    time.sleep(2)
-                else:
-                    print("Reached maximum retries. Exiting.")
-                    driver.quit()
-                    handle_account(account)
-                    return False
-            elif 'Verification successful' in captcha_text:
-                print("Captcha verification successful.")
-                return True
-            else:
-                print("Unknown captcha result, retrying...")
-                retry_count += 1
-                if retry_count < max_retries:
-                    retry_confirm_element = WebDriverWait(driver, 40).until(
-                        EC.element_to_be_clickable(
-                            (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-refreshele"))
-                    )
-                    retry_confirm_element.click()
-                    time.sleep(2)
-                else:
-                    print("Reached maximum retries. Exiting.")
-                    driver.quit()
-                    handle_account(account)
-        except Exception as e:
-            print(f"Error during slider verification attempt {retry_count + 1}: {e}")
-            retry_count += 1
-            if retry_count >= max_retries:
-                print("Reached maximum retries due to exceptions. Exiting.")
-                driver.quit()
-                handle_account(account)
-                return False
-    print("Captcha verification process completed with failures.")
-    driver.quit()
-    handle_account(account)
-    return False
+    except Exception as e:
+        print(f"Error during slider verification: {e}")
+        driver.quit()
+        return False
 
 
 def handle_account(account):
@@ -227,25 +196,27 @@ def handle_account(account):
     bigo_live_set.add(live_id)
     options = Options()
     print("options", bigo_live_set)
-    # options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
-    # options.add_argument('--no-sandbox')
-    # options.add_argument('--disable-gpu')
-    # options.add_argument('--window-size=1920x1080')
-    # options.add_argument('--disable-dev-shm-usage')
-    # driver = webdriver.Chrome(options=options)
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1920x1080')
+    options.add_argument('--disable-dev-shm-usage')
+    proxies = chrome_proxy(USERNAME, PASSWORD, ENDPOINT)
 
-    # proxies = chrome_proxy(USERNAME, PASSWORD, ENDPOINT)
-    # service = Service(executable_path=ChromeDriverManager().install())
-    # driver = webdriver.Chrome(
-    #         service=service,
-    #         options=options,
-    #         seleniumwire_options=proxies,
-    #         )
+    print("End Options")
+
+    print("Init Service")
+    service = Service(executable_path=ChromeDriverManager().install())
+    print("End Service")
 
     print("Init Driver")
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver_map[account_id] = driver
+    driver = webdriver.Chrome(
+        service=service,
+        options=options,
+        seleniumwire_options=proxies,
+        # desired_capabilities=caps
+    )
     print("End Driver")
 
     print(f"Init Open Live {bigo_live}")
@@ -343,8 +314,8 @@ def handle_account(account):
         ## Handle Slider
         handle_slider_verification(driver)
 
-        time.sleep(1)
         print("login")
+        time.sleep(2)
         submit_login = WebDriverWait(driver, 150).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn-sumbit")))
         submit_login.click()
         print("end login")
@@ -386,7 +357,6 @@ def handle_account(account):
     input("Press any key to close the browser...")
     # driver.quit()
 
-
 def periodic_update():
     while True:
         try:
@@ -413,6 +383,7 @@ print("Initial bigo_comments:", bigo_comments)
 print("Initial bigo_live:", bigo_live)
 print("Initial bigo_accounts:", bigo_accounts)
 
+
 update_thread = threading.Thread(target=periodic_update, daemon=True)
 update_thread.start()
 
@@ -420,4 +391,5 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
     for account in bigo_accounts:
         print('thread', account)
         executor.submit(handle_account, account)
-        time.sleep(5)
+
+

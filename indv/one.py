@@ -33,29 +33,11 @@ ENDPOINT = "pr.oxylabs.io:7777"
 
 bigo_live = '1003946142'
 
-bigo_accounts = [
-    {
-        'bigo_phone': "787115274",
-        'bigo_password': "A1122335544a",
-        'bigo_country': 'Jordan',
-
-    },
-    {
-        'bigo_phone': "795383139",
-        'bigo_password': "A1122335544a",
-        'bigo_country': 'Jordan',
-    },
-    {
-        'bigo_phone': "776761765",
-        'bigo_password': "A1122335544a",
-        'bigo_country': 'Jordan',
-    },
-    {
-        'bigo_phone': "788574162",
-        'bigo_password': "A1122335544a",
-        'bigo_country': 'Jordan',
-    },
-]
+bgb_account = {
+        'bigo_phone': "1069339515",
+        'bigo_password': "m3290900a",
+        'bigo_country': 'Egypt',
+    }
 
 def delay(delay=0.2):
     time.sleep(delay)
@@ -88,7 +70,6 @@ def handle_account(account):
     options.add_argument('--window-size=1920x1080')  # Define the window size
     options.add_argument('--disable-dev-shm-usage')  # Overcome limited resource problems
     proxies = chrome_proxy(USERNAME, PASSWORD, ENDPOINT)
-
     print("End Options")
 
     print("Init Service")
@@ -103,6 +84,14 @@ def handle_account(account):
         # desired_capabilities=caps
     )
     print("End Driver")
+
+    try:
+        print("IPPPPP")
+        driver.get(TARGET)
+        with open("one.html", "w") as f:
+            f.write(driver.page_source)
+    except Exception as e:
+        print("IPPP error target", e)
 
     driver.get("https://m.hzmk.site/")
     WebDriverWait(driver, 10).until(lambda driver: driver.execute_script('return document.readyState;') == 'complete')
@@ -235,14 +224,10 @@ def handle_account(account):
     driver.quit()
 
 
-# with concurrent.futures.ThreadPoolExecutor() as executor:
-#     executor.map(handle_account, bigo_accounts)
-
 def main():
     num_cores = os.cpu_count()  # Get the number of cores available
     print(f"Running on {num_cores} cores")
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.map(handle_account, bigo_accounts)
+    handle_account(bgb_account)
 
 
 if __name__ == "__main__":
