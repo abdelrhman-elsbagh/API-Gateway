@@ -34,38 +34,49 @@ API_Comments_URL = "https://skeapp.jacadix.net/api/comments"
 CHECK_INTERVAL = 10
 
 global bigo_comments, bigo_live
-bigo_live=""
+bigo_live = ""
 bigo_comments = []
-
 
 main_phone = "1094897836"
 account = {
-        'phone': "1094897836",
-        'password': "m3290900a",
-        'country': 'Egypt',
+    'phone': "1094897836",
+    'password': "m3290900a",
+    'country': 'Egypt',
 }
 
 
-def post_comment(driver, bigo_comments):
-    try:
-        time.sleep(2)
-        textarea_locator = (By.CSS_SELECTOR, "textarea")
+def wait_for_elementv2(driver, locator, timeout=10):
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    return WebDriverWait(driver, timeout).until(EC.visibility_of_element_located(locator))
 
-        # Wait for the textarea to be present and visible
-        textarea = wait_for_element(driver, textarea_locator)
 
-        print("write comment")
-        time.sleep(1)
+def post_comment(driver, bigo_comments, max_retries=5):
+    retries = 0
+    while retries < max_retries:
+        try:
+            time.sleep(2)
+            textarea_locator = (By.CSS_SELECTOR, "textarea")
+            # Wait for the textarea to be present and visible
+            textarea = wait_for_elementv2(driver, textarea_locator)
+            print("write comment")
+            time.sleep(1)
 
-        # Choose a random comment and post it
-        random_comment = random.choice(bigo_comments)
-        textarea.send_keys(random_comment)
-        time.sleep(2)
-        textarea.send_keys(Keys.ENTER)
+            # Choose a random comment and post it
+            random_comment = random.choice(bigo_comments)
+            textarea.send_keys(random_comment)
+            time.sleep(2)
+            textarea.send_keys(Keys.ENTER)
+            print("end write comment")
+            return  # Exit the function if the comment is posted successfully
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            retries += 1
+            print(f"Retrying... ({retries}/{max_retries})")
+            time.sleep(2)  # Delay before retrying
+    print("Failed to post comment after several attempts... Restart Service")
+    post_comment(driver, bigo_comments, max_retries=5)
 
-        print("end write comment")
-    except Exception as e:
-        print(f"An error occurred: {e}")
 
 def fetch_comments(api_url):
     response = requests.get(api_url)
@@ -75,9 +86,11 @@ def fetch_comments(api_url):
         print(f"Failed to fetch accounts: {response.status_code}")
         return []
 
+
 def get_live_by_phone(phone):
     response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
     return response.json()
+
 
 def update_accounts(driver):
     global bigo_live
@@ -90,12 +103,6 @@ def update_accounts(driver):
 
     new_live_id = data['live_id']
 
-    if new_live_id != bigo_live:
-        driver.get(f"https://m.hzmk.site/{new_live_id}")
-        time.sleep(3)
-
-    bigo_live = new_live_id
-
     account = {
         'phone': data['phone'],
         'password': data['password'],
@@ -103,7 +110,14 @@ def update_accounts(driver):
         'live_id': data['live_id']
     }
 
+    if new_live_id != bigo_live:
+        handle_account(driver, account)
+        time.sleep(3)
+
+    bigo_live = new_live_id
+
     return account
+
 
 def update_comments():
     comments_data = fetch_comments(API_Comments_URL)
@@ -343,17 +357,27 @@ def handle_account(driver, account):
         print(f"Error during execution 101: {str(e)}")
 
     # Final actions or cleanup
-    input("Press any key to close the browser...")
+    # input("Press any key to close the browser...")
     # driver.quit()
 
 
 UPDATE_INTERVAL = 60  # Update every 60 seconds (1 minute)
+UPDATE_10_INTERVAL = 10  # Update every 60 seconds (1 minute)
+
 
 def periodic_update(driver):
     while True:
         updated_account = update_accounts(driver)
         print('updated_account', updated_account)
         time.sleep(UPDATE_INTERVAL)
+
+
+def periodic_put_comment(driver, bigo_comments):
+    while True:
+        updated_comment = post_comment(driver, bigo_comments, 5)
+        print('updated_account', updated_comment)
+        time.sleep(UPDATE_10_INTERVAL)
+
 
 def main():
     options = Options()
@@ -369,13 +393,17 @@ def main():
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         print("End Driver")
         updated_account = update_accounts(driver)
-        update_comments()
+        comments = update_comments()
         print('updated_account', updated_account)
         print('bigo_comments', bigo_comments)
         print("Initial bigo_live:", bigo_live)
         handle_account(driver, updated_account)
+
         update_thread = threading.Thread(target=periodic_update, args=(driver,), daemon=True)
         update_thread.start()
+
+        update_thread_comments = threading.Thread(target=periodic_put_comment, args=(driver, comments), daemon=True)
+        update_thread_comments.start()
     except Exception as e:
         print(f"Error during execution 101: {str(e)}")
 
