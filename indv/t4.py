@@ -84,6 +84,8 @@ def update_accounts(driver):
     data = get_live_by_phone(main_phone)
 
     if 'success' in data and data['success'] == False:
+        delay(5)
+        update_accounts(driver)
         return "Account not found"
 
     new_live_id = data['live_id']
