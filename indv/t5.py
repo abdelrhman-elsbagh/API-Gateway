@@ -103,6 +103,11 @@ def update_accounts(driver):
 
     new_live_id = data['live_id']
 
+    if new_live_id == "":
+        delay(5)
+        update_accounts(driver)
+        return "Account not found"
+
     account = {
         'phone': data['phone'],
         'password': data['password'],
