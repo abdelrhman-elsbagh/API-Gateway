@@ -38,9 +38,9 @@ bigo_live=""
 bigo_comments = []
 
 
-main_phone = "1064249491"
+main_phone = "5343654232"
 account = {
-        'phone': "1064249491",
+        'phone': "5343654232",
         'password': "m3290900a",
         'country': 'Egypt',
 }
@@ -84,6 +84,8 @@ def update_accounts(driver):
     data = get_live_by_phone(main_phone)
 
     if 'success' in data and data['success'] == False:
+        delay(5)
+        update_accounts(driver)
         return "Account not found"
 
     new_live_id = data['live_id']
