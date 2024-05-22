@@ -125,63 +125,93 @@ def chrome_proxy(user: str, password: str, endpoint: str) -> dict:
     }
     return wire_options
 
-
 def wait_for_element(driver, locator):
     return WebDriverWait(driver, 30).until(EC.visibility_of_element_located(locator))
 
 
 def move_slider(action, track_width):
-    move_step = track_width // 20  # Using smaller, more precise steps
+    print("WIDCTH: ** ", track_width)
+    move_step = track_width // 15  # Using smaller, more precise steps
+    step = 0.1
+    print("move_step** ", move_step)
+    print("step** ", step)
     for i in range(25):
         action.move_by_offset(move_step, 0)  # Move horizontally without vertical deviation
-        action.pause(random.uniform(0.05, 0.1))
+        action.pause(step)
+        # action.pause(random.uniform(0.05, 0.1))
+        # action.pause(0.15)
+        delay(0.01)
 
-def handle_slider_verification(driver):
-    try:
-        print("Verifying captcha slider...")
-        slider_track = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textele"))
-        )
-        track_width = slider_track.size['width']
-
-        slider_handle = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-sliderele"))
-        )
-        action = ActionChains(driver)
-        action.click_and_hold(slider_handle)
-
-        move_slider(action, track_width)
-        action.release().perform()
-
-        captcha_text_element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located(
-                (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textelediv"))
-        )
-        captcha_text = captcha_text_element.text
-        print("Captcha Text:", captcha_text)
-
-        if 'failed' in captcha_text:
-            print("Retrying captcha verification...")
-            retry_confirm_element = WebDriverWait(driver, 40).until(
-                EC.element_to_be_clickable(
-                    (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-refreshele"))
+def handle_slider_verification(driver, max_retries=4):
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            print("Verifying captcha slider...")
+            slider_track = WebDriverWait(driver, 10).until(
+                EC.visibility_of_element_located((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textele"))
             )
-            retry_confirm_element.click()
-            time.sleep(2)
-            handle_slider_verification(driver)
+            track_width = slider_track.size['width']
 
-        elif 'Verification successful' not in captcha_text:
-            print("Captcha verification failed.")
-            driver.quit()
-            return False
+            slider_handle = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-sliderele"))
+            )
+            action = ActionChains(driver)
+            action.click_and_hold(slider_handle)
 
-        print("Captcha verification successful.")
-        return True
+            move_slider(action, track_width)
+            action.release().perform()
 
-    except Exception as e:
-        print(f"Error during slider verification: {e}")
-        driver.quit()
-        return False
+            captcha_text_element = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located(
+                    (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-textelediv"))
+            )
+            captcha_text = captcha_text_element.text
+            print("Captcha Text:", captcha_text)
+
+            if 'failed' in captcha_text:
+                print("Captcha verification failed, retrying...")
+                retry_count += 1
+                if retry_count < max_retries:
+                    retry_confirm_element = WebDriverWait(driver, 40).until(
+                        EC.element_to_be_clickable(
+                            (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-refreshele"))
+                    )
+                    retry_confirm_element.click()
+                    time.sleep(2)
+                else:
+                    print("Reached maximum retries. Exiting.")
+                    driver.quit()
+                    handle_account(account)
+                    return False
+            elif 'Verification successful' in captcha_text:
+                print("Captcha verification successful.")
+                return True
+            else:
+                print("Unknown captcha result, retrying...")
+                retry_count += 1
+                if retry_count < max_retries:
+                    retry_confirm_element = WebDriverWait(driver, 40).until(
+                        EC.element_to_be_clickable(
+                            (By.ID, "captcha-box-login-bigo-captcha-element-bigo-captcha-refreshele"))
+                    )
+                    retry_confirm_element.click()
+                    time.sleep(2)
+                else:
+                    print("Reached maximum retries. Exiting.")
+                    driver.quit()
+                    handle_account(account)
+        except Exception as e:
+            print(f"Error during slider verification attempt {retry_count + 1}: {e}")
+            retry_count += 1
+            if retry_count >= max_retries:
+                print("Reached maximum retries due to exceptions. Exiting.")
+                driver.quit()
+                handle_account(account)
+                return False
+    print("Captcha verification process completed with failures.")
+    driver.quit()
+    handle_account(account)
+    return False
 
 
 def handle_account(account):
@@ -312,7 +342,7 @@ def handle_account(account):
         print("Wake")
 
         ## Handle Slider
-        handle_slider_verification(driver)
+        handle_slider_verification(driver, 4)
 
         print("login")
         time.sleep(2)

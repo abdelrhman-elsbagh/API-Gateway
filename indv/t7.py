@@ -38,9 +38,9 @@ bigo_live=""
 bigo_comments = []
 
 
-main_phone = "1064249491"
+main_phone = "1025437788"
 account = {
-        'phone': "1064249491",
+        'phone': "1025437788",
         'password': "m3290900a",
         'country': 'Egypt',
 }

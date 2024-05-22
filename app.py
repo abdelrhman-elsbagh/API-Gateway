@@ -1,9 +1,12 @@
 import json
+import os
 import threading
 import time
+from multiprocessing import Pool, Lock
 
 import requests
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.service import Service
@@ -13,59 +16,62 @@ from webdriver_manager.chrome import ChromeDriverManager
 import random
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.webdriver.chrome.options import Options
 import concurrent.futures
+##############################################
+from selenium import __version__ as seleniumversion
+from seleniumwire import __version__ as seleniumwireversion
+from selenium.webdriver.chrome.service import Service
+from seleniumwire import webdriver
+# A package to have a chromedriver always up-to-date.
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager import __version__ as webdriver_manager_version
 
 ##############################################
-# from selenium import __version__ as seleniumversion
-# from seleniumwire import __version__ as seleniumwireversion
-# from selenium.webdriver.chrome.service import Service
-# from seleniumwire import webdriver
-# # A package to have a chromedriver always up-to-date.
-# from webdriver_manager.chrome import ChromeDriverManager
-# from webdriver_manager import __version__ as webdriver_manager_version
-##############################################
 
+USERNAME = "abdel9"
+PASSWORD = "Admin_2050Pass"
+TARGET = "https://ip.oxylabs.io"
+ENDPOINT = "pr.oxylabs.io:7777"
 
 API_URL = "https://skeapp.jacadix.net/api/live-data"
-BASE_URL = "https://skeapp.jacadix.net/api"
 API_Comments_URL = "https://skeapp.jacadix.net/api/comments"
 
 CHECK_INTERVAL = 10
 
-global bigo_comments, bigo_live
-bigo_live=""
+global bigo_accounts, bigo_comments, bigo_live, bigo_live_set
+bigo_accounts = []
 bigo_comments = []
+bigo_live_set = set()
+
+global driver_map
+driver_map = {}
 
 
-main_phone = "1064249491"
-account = {
-        'phone': "1064249491",
-        'password': "m3290900a",
-        'country': 'Egypt',
-}
+def close_unlisted_accounts(current_ids):
+    global driver_map, bigo_live_set
+    to_remove = []
+    for account_id in bigo_live_set:
+        if account_id not in current_ids:
+            print(f"Closing driver for account_id: {account_id}")
+            driver = driver_map.get(account_id)
+            if driver:
+                driver.quit()
+                del driver_map[account_id]
+            to_remove.append(account_id)
+    for account_id in to_remove:
+        bigo_live_set.remove(account_id)
 
 
-def post_comment(driver, bigo_comments):
-    try:
-        time.sleep(2)
-        textarea_locator = (By.CSS_SELECTOR, "textarea")
+def fetch_accounts(api_url):
+    response = requests.get(api_url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Failed to fetch accounts: {response.status_code}")
+        return []
 
-        # Wait for the textarea to be present and visible
-        textarea = wait_for_element(driver, textarea_locator)
-
-        print("write comment")
-        time.sleep(1)
-
-        # Choose a random comment and post it
-        random_comment = random.choice(bigo_comments)
-        textarea.send_keys(random_comment)
-        time.sleep(2)
-        textarea.send_keys(Keys.ENTER)
-
-        print("end write comment")
-    except Exception as e:
-        print(f"An error occurred: {e}")
 
 def fetch_comments(api_url):
     response = requests.get(api_url)
@@ -75,33 +81,33 @@ def fetch_comments(api_url):
         print(f"Failed to fetch accounts: {response.status_code}")
         return []
 
-def get_live_by_phone(phone):
-    response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
-    return response.json()
 
-def update_accounts(driver):
-    global bigo_live
-    data = get_live_by_phone(main_phone)
+def update_accounts():
+    global bigo_accounts, bigo_live_set, bigo_live, live_id
+    accounts_data = fetch_accounts(API_URL)
+    new_accounts = []
+    current_ids = set()
+    for account_data in accounts_data:
+        account_id = account_data['id']
+        current_ids.add(account_id)
+        if account_id not in bigo_live_set:  # Check if the account has already been started
+            bigo_live_set.add(account_id)
+            bigos = json.loads(account_data['bigos'])
+            live_id = account_data['live_id']
+            bigo_live = account_data['live_id']
+            for bigo in bigos:
+                account = {
+                    'phone': bigo['phone'],
+                    'password': bigo['password'],
+                    'country': bigo['country'],
+                    'live_id': live_id,
+                    'id': account_id  # Adding 'id' to the account dictionary
+                }
+                bigo_accounts.append(account)
+                new_accounts.append(account)
+    print('new accounts', new_accounts)
+    return new_accounts, current_ids
 
-    if 'success' in data and data['success'] == False:
-        return "Account not found"
-
-    new_live_id = data['live_id']
-
-    if new_live_id != bigo_live:
-        driver.get(f"https://m.hzmk.site/{new_live_id}")
-        time.sleep(3)
-
-    bigo_live = new_live_id
-
-    account = {
-        'phone': data['phone'],
-        'password': data['password'],
-        'country': data['country'],
-        'live_id': data['live_id']
-    }
-
-    return account
 
 def update_comments():
     comments_data = fetch_comments(API_Comments_URL)
@@ -180,7 +186,7 @@ def handle_slider_verification(driver, max_retries=4):
                 else:
                     print("Reached maximum retries. Exiting.")
                     driver.quit()
-                    handle_account(driver, account)
+                    handle_account(account)
                     return False
             elif 'Verification successful' in captcha_text:
                 print("Captcha verification successful.")
@@ -198,29 +204,45 @@ def handle_slider_verification(driver, max_retries=4):
                 else:
                     print("Reached maximum retries. Exiting.")
                     driver.quit()
-                    handle_account(driver, account)
+                    handle_account(account)
         except Exception as e:
             print(f"Error during slider verification attempt {retry_count + 1}: {e}")
-            retry_count += 1
-            if retry_count >= max_retries:
-                print("Reached maximum retries due to exceptions. Exiting.")
-                driver.quit()
-                handle_account(driver, account)
-                return False
-    print("Captcha verification process completed with failures.")
-    driver.quit()
-    handle_account(driver, account)
-    return False
 
 
-def handle_account(driver, account):
+def handle_account(account):
     print("handle_account started")
-    global bigo_live
+    global bigo_live, bigo_live_set, live_id
     bigo_phone = account['phone']
     bigo_password = account['password']
     bigo_country = account['country']
-    bigo_live = account['live_id']
-    print(f"Handling account with live_id: {bigo_live}")
+    live_id = account['live_id']
+    account_id = account['id']
+    print(f"Handling account with live_id: {live_id}")
+    bigo_live_set.add(live_id)
+    options = Options()
+    print("options", bigo_live_set)
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1920x1080')
+    options.add_argument('--disable-dev-shm-usage')
+    proxies = chrome_proxy(USERNAME, PASSWORD, ENDPOINT)
+
+    print("End Options")
+
+    print("Init Service")
+    service = Service(executable_path=ChromeDriverManager().install())
+    print("End Service")
+
+    print("Init Driver")
+    driver = webdriver.Chrome(
+        service=service,
+        options=options,
+        seleniumwire_options=proxies,
+        # desired_capabilities=caps
+    )
+    print("End Driver")
 
     print(f"Init Open Live {bigo_live}")
     # Open the URL
@@ -237,7 +259,7 @@ def handle_account(driver, account):
             delay()
         except:
             driver.quit()
-            handle_account(driver, account)
+            handle_account(account)
 
         print('Middle')
 
@@ -250,7 +272,7 @@ def handle_account(driver, account):
             print("End privacy")
         except:
             driver.quit()
-            handle_account(driver, account)
+            handle_account(account)
 
         try:
             login_button = WebDriverWait(driver, 60).until(
@@ -260,7 +282,7 @@ def handle_account(driver, account):
             delay()
         except:
             driver.quit()
-            handle_account(driver, account)
+            handle_account(account)
 
         try:
             sign_up_link = WebDriverWait(driver, 70).until(
@@ -270,7 +292,7 @@ def handle_account(driver, account):
             delay()
         except:
             driver.quit()
-            handle_account(driver, account)
+            handle_account(account)
 
         try:
             login_tab_button = WebDriverWait(driver, 90).until(
@@ -280,7 +302,7 @@ def handle_account(driver, account):
             delay()
         except:
             driver.quit()
-            handle_account(driver, account)
+            handle_account(account)
 
         try:
             country_select_component = WebDriverWait(driver, 100).until(
@@ -290,7 +312,7 @@ def handle_account(driver, account):
             delay()
         except:
             driver.quit()
-            handle_account(driver, account)
+            handle_account(account)
 
         country_li = WebDriverWait(driver, 110).until(
             EC.visibility_of_element_located((By.XPATH, f"//li[contains(span/text(), '{bigo_country}')]"))
@@ -315,10 +337,10 @@ def handle_account(driver, account):
         print("Wake")
 
         ## Handle Slider
-        handle_slider_verification(driver)
+        handle_slider_verification(driver, 4)
 
-        time.sleep(1)
         print("login")
+        time.sleep(2)
         submit_login = WebDriverWait(driver, 150).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn-sumbit")))
         submit_login.click()
         print("end login")
@@ -331,9 +353,25 @@ def handle_account(driver, account):
         wait_for_element(driver, textarea_locator)
         print("write comment")
         try:
-            post_comment(driver, bigo_comments)
+            textarea = WebDriverWait(driver, 30).until(
+                EC.visibility_of_element_located((By.CSS_SELECTOR, "textarea"))
+            )
+            time.sleep(1)
+            random_comment = random.choice(bigo_comments)
+            textarea.send_keys(random_comment)
+            time.sleep(2)
+            textarea.send_keys(Keys.ENTER)
+            print("end write comment")
         except Exception as e:
-            post_comment(driver, bigo_comments)
+            time.sleep(2)
+            textarea = WebDriverWait(driver, 30).until(
+                EC.visibility_of_element_located((By.CSS_SELECTOR, "textarea"))
+            )
+            time.sleep(1)
+            random_comment = random.choice(bigo_comments)
+            textarea.send_keys(random_comment)
+            time.sleep(2)
+            textarea.send_keys(Keys.ENTER)
             print("end write comment 2")
             print(f"Error in sending text to textarea: {str(e)}")
 
@@ -344,39 +382,3 @@ def handle_account(driver, account):
     input("Press any key to close the browser...")
     # driver.quit()
 
-
-UPDATE_INTERVAL = 60  # Update every 60 seconds (1 minute)
-
-def periodic_update(driver):
-    while True:
-        updated_account = update_accounts(driver)
-        print('updated_account', updated_account)
-        time.sleep(UPDATE_INTERVAL)
-
-def main():
-    options = Options()
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1920x1080')
-    options.add_argument('--disable-dev-shm-usage')
-
-    try:
-        print("Init Driver")
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-        print("End Driver")
-        updated_account = update_accounts(driver)
-        update_comments()
-        print('updated_account', updated_account)
-        print('bigo_comments', bigo_comments)
-        print("Initial bigo_live:", bigo_live)
-        handle_account(driver, updated_account)
-        update_thread = threading.Thread(target=periodic_update, args=(driver,), daemon=True)
-        update_thread.start()
-    except Exception as e:
-        print(f"Error during execution 101: {str(e)}")
-
-
-if __name__ == "__main__":
-    main()
