@@ -51,7 +51,7 @@ def wait_for_elementv2(driver, locator, timeout=10):
     return WebDriverWait(driver, timeout).until(EC.visibility_of_element_located(locator))
 
 
-def post_comment(driver, bigo_comments, max_retries=5):
+def post_comment2(driver, bigo_comments, max_retries=5):
     retries = 0
     while retries < max_retries:
         try:
@@ -76,6 +76,28 @@ def post_comment(driver, bigo_comments, max_retries=5):
             time.sleep(2)  # Delay before retrying
     print("Failed to post comment after several attempts... Restart Service")
     post_comment(driver, bigo_comments, max_retries=5)
+
+
+def post_comment(driver, bigo_comments):
+    try:
+        time.sleep(2)
+        textarea_locator = (By.CSS_SELECTOR, "textarea")
+
+        # Wait for the textarea to be present and visible
+        textarea = wait_for_element(driver, textarea_locator)
+
+        print("write comment")
+        time.sleep(1)
+
+        # Choose a random comment and post it
+        random_comment = random.choice(bigo_comments)
+        textarea.send_keys(random_comment)
+        time.sleep(2)
+        textarea.send_keys(Keys.ENTER)
+
+        print("end write comment")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 
 def fetch_comments(api_url):
