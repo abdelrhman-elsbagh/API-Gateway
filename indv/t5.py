@@ -116,6 +116,10 @@ def update_accounts(driver):
 
     bigo_live = new_live_id
 
+    if bigo_live != "":
+        comments = update_comments()
+        periodic_put_comment(driver, comments)
+
     return account
 
 
@@ -127,16 +131,6 @@ def update_comments():
 
 def delay(delay=0.2):
     time.sleep(delay)
-
-
-def chrome_proxy(user: str, password: str, endpoint: str) -> dict:
-    wire_options = {
-        "proxy": {
-            "http": f"https://{user}:{password}@{endpoint}",
-            "https": f"https://{user}:{password}@{endpoint}",
-        }
-    }
-    return wire_options
 
 
 def wait_for_element(driver, locator):
@@ -361,8 +355,8 @@ def handle_account(driver, account):
     # driver.quit()
 
 
-UPDATE_INTERVAL = 60  # Update every 60 seconds (1 minute)
-UPDATE_10_INTERVAL = 10  # Update every 60 seconds (1 minute)
+UPDATE_INTERVAL = 30  # Update every 60 seconds
+UPDATE_20_INTERVAL = 20  # Update every 20 seconds
 
 
 def periodic_update(driver):
@@ -376,7 +370,7 @@ def periodic_put_comment(driver, bigo_comments):
     while True:
         updated_comment = post_comment(driver, bigo_comments, 5)
         print('updated_account', updated_comment)
-        time.sleep(UPDATE_10_INTERVAL)
+        time.sleep(UPDATE_20_INTERVAL)
 
 
 def main():
@@ -402,8 +396,8 @@ def main():
         update_thread = threading.Thread(target=periodic_update, args=(driver,), daemon=True)
         update_thread.start()
 
-        update_thread_comments = threading.Thread(target=periodic_put_comment, args=(driver, comments), daemon=True)
-        update_thread_comments.start()
+        # update_thread_comments = threading.Thread(target=periodic_put_comment, args=(driver, comments), daemon=True)
+        # update_thread_comments.start()
     except Exception as e:
         print(f"Error during execution 101: {str(e)}")
 
