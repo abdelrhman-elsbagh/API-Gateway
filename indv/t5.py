@@ -63,7 +63,8 @@ def wait_for_elementv2(driver, locator, timeout=10):
     from selenium.webdriver.support import expected_conditions as EC
     return WebDriverWait(driver, timeout).until(EC.visibility_of_element_located(locator))
 
-def post_comment(driver, bigo_comments):
+
+def post_comment(driver, comments):
     try:
         time.sleep(2)
         textarea_locator = (By.CSS_SELECTOR, "textarea")
@@ -74,9 +75,14 @@ def post_comment(driver, bigo_comments):
         print("write post_comment")
         time.sleep(1)
 
-        # Choose a random comment and post it
+        if comments is None:
+            comments = update_comments()
+
+        if len(comments) < 1:
+            comments = update_comments()
+
         # print("Comming comments", bigo_comments)
-        random_comment = random.choice(bigo_comments)
+        random_comment = random.choice(comments)
         # comm = main_phone + " => " + random_comment
         textarea.send_keys(str(random_comment))
         time.sleep(2)
@@ -166,7 +172,7 @@ def update_accounts(driver):
 
         print("bigo_comments-update_accounts", bigo_comments)
 
-        if bigo_comments is not None and LOGIN_SUCCESS == True:
+        if bigo_comments is not None and LOGIN_SUCCESS == True and bigo_live is not "":
             if len(bigo_comments) > 0:
                 print("Bigo Start Re Comment :")
                 post_comment(driver, bigo_comments)
@@ -279,7 +285,8 @@ def handle_slider_verification(driver, max_retries=4):
 
 def handle_account(driver, account):
     print("handle_account started")
-    global bigo_live
+    global bigo_live, LOGIN_SUCCESS
+
     bigo_phone = account['phone']
     bigo_password = account['password']
     bigo_country = account['country']
@@ -395,13 +402,10 @@ def handle_account(driver, account):
             wait_for_element(driver, textarea_locator)
             print("open live")
         except Exception as e:
-            time.sleep(5)
-            textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
-            WebDriverWait(driver, 10).until(textarea_present)
-            textarea_locator = (By.CSS_SELECTOR, "textarea")
-            wait_for_element(driver, textarea_locator)
             print("open live 2")
             print(f"Error in located : {str(e)}")
+            LOGIN_SUCCESS = True
+            return True
 
         if bigo_live != "":
             print("write comment main")
@@ -419,7 +423,6 @@ def handle_account(driver, account):
         print("re run handle_account() 101")
         handle_account(driver, account)
 
-    global LOGIN_SUCCESS
     LOGIN_SUCCESS = True
     # Final actions or cleanup
     # input("Press any key to close the browser...")
@@ -439,9 +442,11 @@ def periodic_put_comment(driver, bigo_comments):
         print('updated_account', updated_comment)
         time.sleep(UPDATE_20_INTERVAL)
 
+
 def sigterm_handler(signum, frame):
     print("Press Enter to close the browser...")
     sys.exit(0)  # Exit gracefully
+
 
 def main():
     options = webdriver.ChromeOptions()
