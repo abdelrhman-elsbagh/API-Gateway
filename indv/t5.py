@@ -103,6 +103,7 @@ def update_accounts(driver):
     data = get_live_by_phone(main_phone)
 
     if 'success' in data and data['success'] == False:
+        print(f"Phone {main_phone} Not Found")
         delay(5)
         update_accounts(driver)
         return "Account not found"
@@ -124,6 +125,8 @@ def update_accounts(driver):
         'country': data['country'],
         'live_id': data['live_id']
     }
+
+    print("Account Has Updated", account)
 
     if (new_live_id != bigo_live) and LOGIN_SUCCESS == True:
         bigo_live = new_live_id
