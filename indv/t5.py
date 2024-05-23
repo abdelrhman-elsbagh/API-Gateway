@@ -75,7 +75,7 @@ def post_comment2(driver, bigo_comments, max_retries=5):
             print(f"Retrying... ({retries}/{max_retries})")
             time.sleep(2)  # Delay before retrying
     print("Failed to post comment after several attempts... Restart Service")
-    post_comment(driver, bigo_comments, max_retries=5)
+    post_comment2(driver, bigo_comments, max_retries=5)
 
 
 def post_comment(driver, bigo_comments):
@@ -370,7 +370,6 @@ def handle_account(driver, account):
         try:
             post_comment(driver, bigo_comments)
         except Exception as e:
-            post_comment(driver, bigo_comments)
             print("end write comment 2")
             print(f"Error in sending text to textarea: {str(e)}")
 
@@ -395,7 +394,7 @@ def periodic_update(driver):
 
 def periodic_put_comment(driver, bigo_comments):
     while True:
-        updated_comment = post_comment(driver, bigo_comments, 5)
+        updated_comment = post_comment(driver, bigo_comments)
         print('updated_account', updated_comment)
         time.sleep(UPDATE_20_INTERVAL)
 
