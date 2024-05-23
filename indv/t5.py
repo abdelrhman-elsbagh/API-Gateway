@@ -1,5 +1,7 @@
 import json
 import os
+import signal
+import sys
 import threading
 import time
 
@@ -425,6 +427,9 @@ def periodic_put_comment(driver, bigo_comments):
         print('updated_account', updated_comment)
         time.sleep(UPDATE_20_INTERVAL)
 
+def sigterm_handler(signum, frame):
+    print("Press Enter to close the browser...")
+    sys.exit(0)  # Exit gracefully
 
 def main():
     options = webdriver.ChromeOptions()
@@ -458,6 +463,6 @@ def main():
 
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, sigterm_handler)
     main()
-    input("Press any key to close the browser...")
-    exit(1)
+    signal.pause()
