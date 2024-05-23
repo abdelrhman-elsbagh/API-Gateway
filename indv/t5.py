@@ -37,12 +37,16 @@ global bigo_comments, bigo_live
 bigo_live = ""
 bigo_comments = []
 
-main_phone = "1094897836"
-account = {
-    'phone': "1094897836",
-    'password': "m3290900a",
-    'country': 'Egypt',
-}
+json_file_path = 'account_data.json'
+with open(json_file_path, 'r') as json_file:
+    data = json.load(json_file)
+
+# Extract the values
+main_phone = data['main_phone']
+account = data['account']
+
+print("Main Phone:", main_phone)
+print("Account Details:", account)
 
 
 def wait_for_elementv2(driver, locator, timeout=10):
