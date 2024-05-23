@@ -124,7 +124,7 @@ def update_accounts(driver):
 
     new_live_id = data['live_id']
 
-    if ((new_live_id != bigo_live) or data['live_id'] != new_live_id) and LOGIN_SUCCESS == True:
+    if ((new_live_id != bigo_live) or data['live_id'] != bigo_live) and LOGIN_SUCCESS == True:
         print(f"new_live_id has been changed to{new_live_id} ...")
         driver.get(f"https://m.hzmk.site/{new_live_id}")
         try:
