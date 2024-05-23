@@ -109,8 +109,10 @@ def update_accounts(driver):
         print(f"Local Account is {account}")
         bigo_live = ""
         delay(5)
-        update_accounts(driver)
         return account
+
+    if LOGIN_SUCCESS == True and data['success'] == False:
+        update_accounts(driver)
 
     if bigo_live == "":
         bigo_live = data['live_id']
@@ -143,7 +145,6 @@ def update_accounts(driver):
             print(f"Page is loaded and send_btn element is present.")
         except TimeoutException:
             print("Loading took too much time!")
-
 
     bigo_live = new_live_id
 
