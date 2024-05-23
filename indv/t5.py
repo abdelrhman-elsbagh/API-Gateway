@@ -34,9 +34,11 @@ API_Comments_URL = "https://skeapp.jacadix.net/api/comments"
 
 CHECK_INTERVAL = 10
 
-global bigo_comments, bigo_live
+global bigo_comments, bigo_live, LOGIN_SUCCESS
 bigo_live = ""
 bigo_comments = []
+
+LOGIN_SUCCESS = False
 
 json_file_path = os.path.join(os.getcwd(), 'account_data.json')
 with open(json_file_path, 'r') as json_file:
@@ -121,7 +123,9 @@ def get_live_by_phone(phone):
 
 
 def update_accounts(driver):
+    global LOGIN_SUCCESS
     print("update_accounts function")
+    print("LOGIN_SUCCESS", LOGIN_SUCCESS)
     global bigo_live
     data = get_live_by_phone(main_phone)
 
@@ -135,7 +139,7 @@ def update_accounts(driver):
 
     new_live_id = data['live_id']
 
-    if new_live_id == "":
+    if new_live_id == "" and LOGIN_SUCCESS == True:
         delay(5)
         print("new_live_id is empty and we gonna run update_accounts ...")
         update_accounts(driver)
@@ -148,19 +152,25 @@ def update_accounts(driver):
         'live_id': data['live_id']
     }
 
-    if new_live_id != bigo_live:
-        handle_account(driver, account)
-        print("new_live_id is empty and we gonna run update_accounts ...")
-        time.sleep(3)
+    if (new_live_id != bigo_live) and LOGIN_SUCCESS == True:
+        driver.get(f"https://m.hzmk.site/{bigo_live}")
+        print(f"new_live_id has been changed to{bigo_live} ...")
+        time.sleep(5)
 
     bigo_live = new_live_id
 
     if bigo_live != "":
         global bigo_comments
+
+        if bigo_comments is not None:
+            if len(bigo_comments) < 1:
+                bigo_comments = update_comments()
+
         print("bigo_comments-update_accounts", bigo_comments)
-        if bigo_comments is None :
-            bigo_comments = update_comments()
-        post_comment(driver, bigo_comments)
+
+        if bigo_comments is not None and LOGIN_SUCCESS == True:
+            if len(bigo_comments) > 0:
+                post_comment(driver, bigo_comments)
 
     return account
 
@@ -234,7 +244,7 @@ def handle_slider_verification(driver, max_retries=4):
                     time.sleep(2)
                 else:
                     print("Reached maximum retries. Exiting.")
-                    driver.quit()
+                    # driver.quit()
                     handle_account(driver, account)
                     return False
             elif 'Verification successful' in captcha_text:
@@ -252,18 +262,18 @@ def handle_slider_verification(driver, max_retries=4):
                     time.sleep(2)
                 else:
                     print("Reached maximum retries. Exiting.")
-                    driver.quit()
+                    # driver.quit()
                     handle_account(driver, account)
         except Exception as e:
             print(f"Error during slider verification attempt {retry_count + 1}: {e}")
             retry_count += 1
             if retry_count >= max_retries:
                 print("Reached maximum retries due to exceptions. Exiting.")
-                driver.quit()
+                # driver.quit()
                 handle_account(driver, account)
                 return False
     print("Captcha verification process completed with failures.")
-    driver.quit()
+    # driver.quit()
     handle_account(driver, account)
     return False
 
@@ -291,7 +301,7 @@ def handle_account(driver, account):
             privacy_confirm_element.click()
             delay()
         except:
-            driver.quit()
+            # driver.quit()
             handle_account(driver, account)
 
         print('Middle')
@@ -314,7 +324,7 @@ def handle_account(driver, account):
             login_button.click()
             delay()
         except:
-            driver.quit()
+            # driver.quit()
             handle_account(driver, account)
 
         try:
@@ -324,7 +334,7 @@ def handle_account(driver, account):
             sign_up_link.click()
             delay()
         except:
-            driver.quit()
+            # driver.quit()
             handle_account(driver, account)
 
         try:
@@ -334,7 +344,7 @@ def handle_account(driver, account):
             login_tab_button.click()
             delay()
         except:
-            driver.quit()
+            # driver.quit()
             handle_account(driver, account)
 
         try:
@@ -344,7 +354,7 @@ def handle_account(driver, account):
             country_select_component.click()
             delay()
         except:
-            driver.quit()
+            # driver.quit()
             handle_account(driver, account)
 
         country_li = WebDriverWait(driver, 110).until(
@@ -397,8 +407,10 @@ def handle_account(driver, account):
     except Exception as e:
         print(f"Error during execution 101: {str(e)}")
 
+    global LOGIN_SUCCESS
+    LOGIN_SUCCESS = True
     # Final actions or cleanup
-    # input("Press any key to close the browser...")
+    input("Press any key to close the browser...")
     # driver.quit()
 
 
@@ -421,7 +433,6 @@ def periodic_put_comment(driver, bigo_comments):
 
 
 def main():
-    options = Options()
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument('--no-sandbox')
