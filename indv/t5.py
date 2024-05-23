@@ -104,6 +104,7 @@ def update_accounts(driver):
 
     if 'success' in data and data['success'] == False:
         print(f"Phone {main_phone} Not Found")
+        bigo_live = ""
         delay(5)
         update_accounts(driver)
         return "Account not found"
@@ -387,6 +388,8 @@ def handle_account(driver, account):
 
     except Exception as e:
         print(f"Error during execution 101: {str(e)}")
+        print("re run handle_account() 101")
+        handle_account(driver, account)
 
     global LOGIN_SUCCESS
     LOGIN_SUCCESS = True
@@ -439,7 +442,9 @@ def main():
         # update_thread_comments = threading.Thread(target=periodic_put_comment, args=(driver, comments), daemon=True)
         # update_thread_comments.start()
     except Exception as e:
-        print(f"Error during execution 101: {str(e)}")
+        print(f"Error during execution 109: {str(e)}")
+        print("re run main()")
+        main()
 
 
 if __name__ == "__main__":
