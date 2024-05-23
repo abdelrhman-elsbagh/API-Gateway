@@ -151,6 +151,7 @@ def update_accounts(driver):
 
     if bigo_live != "":
         global bigo_comments
+        print("bigo_comments-update_accounts", bigo_comments)
         if bigo_comments is None :
             bigo_comments = update_comments()
         post_comment(driver, bigo_comments)
@@ -159,6 +160,7 @@ def update_accounts(driver):
 
 
 def update_comments():
+    global bigo_comments
     bigo_comments = []
     comments_data = fetch_comments(API_Comments_URL)
     for comment in comments_data:
@@ -379,9 +381,8 @@ def handle_account(driver, account):
         print("write comment main")
         try:
             global bigo_comments
-            if bigo_comments is None:
-                bigo_comments = update_comments()
-
+            print("bigo_comments-handle_account", bigo_comments)
+            bigo_comments = update_comments()
             post_comment(driver, bigo_comments)
         except Exception as e:
             print("end write comment 2")
