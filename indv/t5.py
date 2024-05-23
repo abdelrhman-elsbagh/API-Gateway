@@ -110,7 +110,7 @@ def update_accounts(driver):
         bigo_live = ""
         delay(5)
         update_accounts(driver)
-        return "Account not found"
+        return account
 
     if bigo_live == "":
         bigo_live = data['live_id']
