@@ -114,8 +114,9 @@ def update_accounts(driver):
         print(f"Phone {main_phone} Not Found")
         print(f"Local Account is {account}")
         bigo_live = ""
+        account["live_id"] = ""
         delay(5)
-        if LOGIN_SUCCESS == True:
+        if LOGIN_SUCCESS:
             update_accounts(driver)
         return account
 
