@@ -57,34 +57,6 @@ def wait_for_elementv2(driver, locator, timeout=10):
     from selenium.webdriver.support import expected_conditions as EC
     return WebDriverWait(driver, timeout).until(EC.visibility_of_element_located(locator))
 
-
-def post_comment2(driver, bigo_comments, max_retries=5):
-    retries = 0
-    while retries < max_retries:
-        try:
-            time.sleep(2)
-            textarea_locator = (By.CSS_SELECTOR, "textarea")
-            # Wait for the textarea to be present and visible
-            textarea = wait_for_elementv2(driver, textarea_locator)
-            print("write comment")
-            time.sleep(1)
-
-            # Choose a random comment and post it
-            random_comment = random.choice(bigo_comments)
-            textarea.send_keys(random_comment)
-            time.sleep(2)
-            textarea.send_keys(Keys.ENTER)
-            print("end write comment")
-            return  # Exit the function if the comment is posted successfully
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            retries += 1
-            print(f"Retrying... ({retries}/{max_retries})")
-            time.sleep(2)  # Delay before retrying
-    print("Failed to post comment after several attempts... Restart Service")
-    post_comment2(driver, bigo_comments, max_retries=5)
-
-
 def post_comment(driver, bigo_comments):
     try:
         time.sleep(2)
@@ -97,10 +69,11 @@ def post_comment(driver, bigo_comments):
         time.sleep(1)
 
         # Choose a random comment and post it
-        print("Comming comments", bigo_comments)
+        # print("Comming comments", bigo_comments)
         random_comment = random.choice(bigo_comments)
         textarea.send_keys(random_comment)
         time.sleep(2)
+        print("Current Comment: ", random_comment)
         textarea.send_keys(Keys.ENTER)
 
         print("end write comment")
@@ -162,14 +135,18 @@ def update_accounts(driver):
     if bigo_live != "":
         global bigo_comments
 
+        print("Bigo Current ID :", bigo_live)
+
         if bigo_comments is not None:
             if len(bigo_comments) < 1:
+                print("Bigo Update Comments :")
                 bigo_comments = update_comments()
 
         print("bigo_comments-update_accounts", bigo_comments)
 
         if bigo_comments is not None and LOGIN_SUCCESS == True:
             if len(bigo_comments) > 0:
+                print("Bigo Start Re Comment :")
                 post_comment(driver, bigo_comments)
 
     return account
