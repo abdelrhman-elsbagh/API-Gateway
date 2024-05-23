@@ -172,7 +172,7 @@ def update_accounts(driver):
 
         print("bigo_comments-update_accounts", bigo_comments)
 
-        if bigo_comments is not None and LOGIN_SUCCESS == True and bigo_live is not "":
+        if bigo_comments is not None and LOGIN_SUCCESS == True and bigo_live != "":
             if len(bigo_comments) > 0:
                 print("Bigo Start Re Comment :")
                 post_comment(driver, bigo_comments)
