@@ -1,4 +1,5 @@
 import json
+import os
 import threading
 import time
 
@@ -37,7 +38,7 @@ global bigo_comments, bigo_live
 bigo_live = ""
 bigo_comments = []
 
-json_file_path = 'account_data.json'
+json_file_path = os.path.join(os.getcwd(), 'account_data.json')
 with open(json_file_path, 'r') as json_file:
     data = json.load(json_file)
 
