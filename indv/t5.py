@@ -127,18 +127,31 @@ def update_accounts(driver):
         return account
 
     if bigo_live == "":
-        bigo_live = data['live_id']
+        if data['live_id'] != "":
+            bigo_live = data['live_id']
+            print(f"bigo_live has been changed to{bigo_live} ...")
+            driver.get(f"https://m.hzmk.site/{bigo_live}")
+            time.sleep(3)
+            try:
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
+                )
+
+                print(f"Page is loaded and send_btn element is present.")
+            except TimeoutException:
+                print("Loading took too much time!")
 
     new_live_id = data['live_id']
 
     if ((new_live_id != bigo_live) or data['live_id'] != bigo_live) and LOGIN_SUCCESS == True:
         print(f"new_live_id has been changed to{new_live_id} ...")
         driver.get(f"https://m.hzmk.site/{new_live_id}")
+        time.sleep(3)
         try:
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
             )
-            time.sleep(3)
+
             print(f"Page is loaded and send_btn element is present.")
         except TimeoutException:
             print("Loading took too much time!")
