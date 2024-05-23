@@ -381,13 +381,13 @@ def handle_account(driver, account):
         submit_login.click()
         print("end login")
 
+        time.sleep(2)
+        textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
+        WebDriverWait(driver, 10).until(textarea_present)
+        textarea_locator = (By.CSS_SELECTOR, "textarea")
+        wait_for_element(driver, textarea_locator)
         print("open live")
         if bigo_live != "":
-            time.sleep(2)
-            textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
-            WebDriverWait(driver, 10).until(textarea_present)
-            textarea_locator = (By.CSS_SELECTOR, "textarea")
-            wait_for_element(driver, textarea_locator)
             print("write comment main")
             try:
                 global bigo_comments
