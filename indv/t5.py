@@ -158,9 +158,11 @@ def update_accounts(driver):
 
 
 def update_comments():
+    global bigo_comments
     comments_data = fetch_comments(API_Comments_URL)
     for comment in comments_data:
         bigo_comments.append(comment['comment'])
+    return bigo_comments
 
 
 def delay(delay=0.2):
