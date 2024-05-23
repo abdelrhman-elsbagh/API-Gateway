@@ -144,8 +144,10 @@ def update_accounts(driver):
     bigo_live = new_live_id
 
     if bigo_live != "":
-        comments = update_comments()
-        periodic_put_comment(driver, comments)
+        global bigo_comments
+        if bigo_comments is None or len(bigo_comments) == 0:
+            bigo_comments = update_comments()
+        post_comment(driver, bigo_comments)
 
     return account
 
@@ -368,6 +370,10 @@ def handle_account(driver, account):
         wait_for_element(driver, textarea_locator)
         print("write comment")
         try:
+            global bigo_comments
+            if bigo_comments is None or len(bigo_comments) == 0:
+                bigo_comments = update_comments()
+
             post_comment(driver, bigo_comments)
         except Exception as e:
             print("end write comment 2")
