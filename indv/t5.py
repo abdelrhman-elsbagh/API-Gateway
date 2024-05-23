@@ -41,6 +41,9 @@ bigo_comments = []
 
 LOGIN_SUCCESS = False
 
+UPDATE_INTERVAL = 30  # Update every 60 seconds
+UPDATE_20_INTERVAL = 20  # Update every 20 seconds
+
 json_file_path = os.path.join(os.getcwd(), 'account_data.json')
 with open(json_file_path, 'r') as json_file:
     data = json.load(json_file)
@@ -113,11 +116,24 @@ def update_accounts(driver):
             update_accounts(driver)
         return account
 
-
     if bigo_live == "":
         bigo_live = data['live_id']
 
     new_live_id = data['live_id']
+
+    if new_live_id != "" and bigo_live != "" and (new_live_id != bigo_live) and LOGIN_SUCCESS == True:
+        driver.get(f"https://m.hzmk.site/{new_live_id}")
+        print(f"new_live_id has been changed to{new_live_id} ...")
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
+            )
+            time.sleep(3)
+            print(f"Page is loaded and send_btn element is present.")
+        except TimeoutException:
+            print("Loading took too much time!")
+
+    bigo_live = new_live_id
 
     if new_live_id == "" and LOGIN_SUCCESS == True:
         delay(5)
@@ -133,20 +149,6 @@ def update_accounts(driver):
     }
 
     print("Account Has Updated", account)
-
-    if (new_live_id != bigo_live) and LOGIN_SUCCESS == True:
-        driver.get(f"https://m.hzmk.site/{new_live_id}")
-        print(f"new_live_id has been changed to{new_live_id} ...")
-        try:
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
-            )
-            time.sleep(3)
-            print(f"Page is loaded and send_btn element is present.")
-        except TimeoutException:
-            print("Loading took too much time!")
-
-    bigo_live = new_live_id
 
     if bigo_live != "":
         global bigo_comments
@@ -408,10 +410,6 @@ def handle_account(driver, account):
     # Final actions or cleanup
     # input("Press any key to close the browser...")
     # driver.quit()
-
-
-UPDATE_INTERVAL = 30  # Update every 60 seconds
-UPDATE_20_INTERVAL = 20  # Update every 20 seconds
 
 
 def periodic_update(driver):
