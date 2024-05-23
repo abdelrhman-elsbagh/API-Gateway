@@ -410,7 +410,7 @@ def handle_account(driver, account):
     global LOGIN_SUCCESS
     LOGIN_SUCCESS = True
     # Final actions or cleanup
-    input("Press any key to close the browser...")
+    # input("Press any key to close the browser...")
     # driver.quit()
 
 
@@ -463,3 +463,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    input("Press any key to close the browser...")
+    exit(1)
