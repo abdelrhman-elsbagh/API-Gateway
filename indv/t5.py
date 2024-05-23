@@ -71,14 +71,14 @@ def post_comment(driver, bigo_comments):
         # Wait for the textarea to be present and visible
         textarea = wait_for_element(driver, textarea_locator)
 
-        print("write comment")
+        print("write post_comment")
         time.sleep(1)
 
         # Choose a random comment and post it
         # print("Comming comments", bigo_comments)
         random_comment = random.choice(bigo_comments)
-        comm = main_phone + " => " + random_comment
-        textarea.send_keys(comm)
+        # comm = main_phone + " => " + random_comment
+        textarea.send_keys(str(random_comment))
         time.sleep(2)
         print("Current Comment: ", random_comment)
         textarea.send_keys(Keys.ENTER)
