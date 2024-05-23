@@ -35,7 +35,7 @@ API_Comments_URL = "https://skeapp.jacadix.net/api/comments"
 
 CHECK_INTERVAL = 10
 
-global bigo_comments, bigo_live, LOGIN_SUCCESS
+global bigo_comments, bigo_live, LOGIN_SUCCESS, account
 bigo_live = ""
 bigo_comments = []
 
@@ -104,7 +104,9 @@ def update_accounts(driver):
     data = get_live_by_phone(main_phone)
 
     if 'success' in data and data['success'] == False:
+        global account
         print(f"Phone {main_phone} Not Found")
+        print(f"Local Account is {account}")
         bigo_live = ""
         delay(5)
         update_accounts(driver)
@@ -134,7 +136,7 @@ def update_accounts(driver):
         driver.get(f"https://m.hzmk.site/{new_live_id}")
         print(f"new_live_id has been changed to{new_live_id} ...")
         try:
-            element = WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
             )
             time.sleep(3)
