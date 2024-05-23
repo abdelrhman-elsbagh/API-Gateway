@@ -121,6 +121,7 @@ def get_live_by_phone(phone):
 
 
 def update_accounts(driver):
+    print("update_accounts function")
     global bigo_live
     data = get_live_by_phone(main_phone)
 
@@ -129,10 +130,14 @@ def update_accounts(driver):
         update_accounts(driver)
         return "Account not found"
 
+    if bigo_live == "":
+        bigo_live = data['live_id']
+
     new_live_id = data['live_id']
 
     if new_live_id == "":
         delay(5)
+        print("new_live_id is empty and we gonna run update_accounts ...")
         update_accounts(driver)
         return "Account not found"
 
@@ -145,6 +150,7 @@ def update_accounts(driver):
 
     if new_live_id != bigo_live:
         handle_account(driver, account)
+        print("new_live_id is empty and we gonna run update_accounts ...")
         time.sleep(3)
 
     bigo_live = new_live_id
@@ -403,7 +409,7 @@ UPDATE_20_INTERVAL = 20  # Update every 20 seconds
 def periodic_update(driver):
     while True:
         updated_account = update_accounts(driver)
-        print('updated_account', updated_account)
+        print('periodic_update function', updated_account)
         time.sleep(UPDATE_INTERVAL)
 
 
