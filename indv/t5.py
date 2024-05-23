@@ -126,6 +126,7 @@ def update_accounts(driver):
     }
 
     if (new_live_id != bigo_live) and LOGIN_SUCCESS == True:
+        bigo_live = new_live_id
         driver.get(f"https://m.hzmk.site/{bigo_live}")
         print(f"new_live_id has been changed to{bigo_live} ...")
         time.sleep(5)
