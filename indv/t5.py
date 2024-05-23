@@ -423,6 +423,7 @@ def main():
     options.add_argument('--disable-dev-shm-usage')
 
     try:
+        global bigo_comments
         print("Init Driver")
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         print("End Driver")
