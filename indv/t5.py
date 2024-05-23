@@ -387,12 +387,22 @@ def handle_account(driver, account):
         submit_login.click()
         print("end login")
 
-        time.sleep(2)
-        textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
-        WebDriverWait(driver, 10).until(textarea_present)
-        textarea_locator = (By.CSS_SELECTOR, "textarea")
-        wait_for_element(driver, textarea_locator)
-        print("open live")
+        try:
+            time.sleep(2)
+            textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
+            WebDriverWait(driver, 10).until(textarea_present)
+            textarea_locator = (By.CSS_SELECTOR, "textarea")
+            wait_for_element(driver, textarea_locator)
+            print("open live")
+        except Exception as e:
+            time.sleep(5)
+            textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
+            WebDriverWait(driver, 10).until(textarea_present)
+            textarea_locator = (By.CSS_SELECTOR, "textarea")
+            wait_for_element(driver, textarea_locator)
+            print("open live 2")
+            print(f"Error in located : {str(e)}")
+
         if bigo_live != "":
             print("write comment main")
             try:
