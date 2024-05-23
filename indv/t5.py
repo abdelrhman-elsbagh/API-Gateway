@@ -77,7 +77,8 @@ def post_comment(driver, bigo_comments):
         # Choose a random comment and post it
         # print("Comming comments", bigo_comments)
         random_comment = random.choice(bigo_comments)
-        textarea.send_keys(random_comment)
+        comm = main_phone + " => " + random_comment
+        textarea.send_keys(comm)
         time.sleep(2)
         print("Current Comment: ", random_comment)
         textarea.send_keys(Keys.ENTER)
