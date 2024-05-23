@@ -307,7 +307,7 @@ def handle_account(driver, account):
             delay()
             print("End privacy")
         except:
-            driver.quit()
+            # driver.quit()
             handle_account(driver, account)
 
         try:
@@ -382,20 +382,21 @@ def handle_account(driver, account):
         print("end login")
 
         print("open live")
-        time.sleep(2)
-        textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
-        WebDriverWait(driver, 10).until(textarea_present)
-        textarea_locator = (By.CSS_SELECTOR, "textarea")
-        wait_for_element(driver, textarea_locator)
-        print("write comment main")
-        try:
-            global bigo_comments
-            print("bigo_comments-handle_account", bigo_comments)
-            bigo_comments = update_comments()
-            post_comment(driver, bigo_comments)
-        except Exception as e:
-            print("end write comment 2")
-            print(f"Error in sending text to textarea: {str(e)}")
+        if bigo_live != "":
+            time.sleep(2)
+            textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
+            WebDriverWait(driver, 10).until(textarea_present)
+            textarea_locator = (By.CSS_SELECTOR, "textarea")
+            wait_for_element(driver, textarea_locator)
+            print("write comment main")
+            try:
+                global bigo_comments
+                print("bigo_comments-handle_account", bigo_comments)
+                bigo_comments = update_comments()
+                post_comment(driver, bigo_comments)
+            except Exception as e:
+                print("end write comment 2")
+                print(f"Error in sending text to textarea: {str(e)}")
 
     except Exception as e:
         print(f"Error during execution 101: {str(e)}")
