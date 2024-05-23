@@ -95,6 +95,7 @@ def post_comment(driver, bigo_comments):
         time.sleep(1)
 
         # Choose a random comment and post it
+        print("Comming comments", bigo_comments)
         random_comment = random.choice(bigo_comments)
         textarea.send_keys(random_comment)
         time.sleep(2)
@@ -158,7 +159,7 @@ def update_accounts(driver):
 
 
 def update_comments():
-    global bigo_comments
+    bigo_comments = []
     comments_data = fetch_comments(API_Comments_URL)
     for comment in comments_data:
         bigo_comments.append(comment['comment'])
@@ -375,10 +376,10 @@ def handle_account(driver, account):
         WebDriverWait(driver, 10).until(textarea_present)
         textarea_locator = (By.CSS_SELECTOR, "textarea")
         wait_for_element(driver, textarea_locator)
-        print("write comment")
+        print("write comment main")
         try:
             global bigo_comments
-            if bigo_comments is None :
+            if bigo_comments is None:
                 bigo_comments = update_comments()
 
             post_comment(driver, bigo_comments)
