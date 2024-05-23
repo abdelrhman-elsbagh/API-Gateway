@@ -145,7 +145,7 @@ def update_accounts(driver):
 
     if bigo_live != "":
         global bigo_comments
-        if bigo_comments is None or len(bigo_comments) == 0:
+        if bigo_comments is None :
             bigo_comments = update_comments()
         post_comment(driver, bigo_comments)
 
@@ -371,7 +371,7 @@ def handle_account(driver, account):
         print("write comment")
         try:
             global bigo_comments
-            if bigo_comments is None or len(bigo_comments) == 0:
+            if bigo_comments is None :
                 bigo_comments = update_comments()
 
             post_comment(driver, bigo_comments)
@@ -419,7 +419,7 @@ def main():
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         print("End Driver")
         updated_account = update_accounts(driver)
-        comments = update_comments()
+        bigo_comments = update_comments()
         print('updated_account', updated_account)
         print('bigo_comments', bigo_comments)
         print("Initial bigo_live:", bigo_live)
