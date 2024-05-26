@@ -433,7 +433,7 @@ def handle_account(driver, account):
         delay()
 
         print("Sleep")
-        time.sleep(3)
+        time.sleep(1)
         print("Wake")
 
         ## Handle Slider
@@ -498,14 +498,13 @@ def sigterm_handler(signum, frame):
     print("Press Enter to close the browser...")
     sys.exit(0)  # Exit gracefully
 
-
 def main():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1920x1080')
-    options.add_argument('--disable-dev-shm-usage')
+    # options.add_argument("--headless")
+    # options.add_argument('--no-sandbox')
+    # options.add_argument('--disable-gpu')
+    # options.add_argument('--window-size=1920x1080')
+    # options.add_argument('--disable-dev-shm-usage')
 
     try:
         global bigo_comments
