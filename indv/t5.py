@@ -257,7 +257,7 @@ def move_slider(action, track_width):
         action.pause(step)
         # action.pause(random.uniform(0.05, 0.1))
         # action.pause(0.15)
-        delay(0.01)
+        delay(0.1)
 
 
 def handle_slider_verification(driver, max_retries=4):
