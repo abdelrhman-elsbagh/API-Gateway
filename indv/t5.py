@@ -433,7 +433,7 @@ def handle_account(driver, account):
         delay()
 
         print("Sleep")
-        time.sleep(1)
+        time.sleep(2)
         print("Wake")
 
         ## Handle Slider
