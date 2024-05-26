@@ -4,6 +4,7 @@ import signal
 import sys
 import threading
 import time
+from urllib.parse import urlparse
 
 import requests
 from selenium import webdriver
@@ -37,6 +38,9 @@ API_Comments_URL = "https://skeapp.jacadix.net/api/comments"
 
 CHECK_INTERVAL = 10
 
+global BASE_LIVE_URL
+BASE_LIVE_URL = "https://m.hzmk.site/"
+
 global bigo_comments, bigo_live, LOGIN_SUCCESS, account
 bigo_live = ""
 bigo_comments = []
@@ -56,6 +60,23 @@ account = data['account']
 
 print("Main Phone:", main_phone)
 print("Account Details:", account)
+
+
+def fetch_config():
+    global BASE_LIVE_URL
+    response = requests.get(f"{BASE_URL}/config")
+    if response.status_code == 200:
+        BASE_LIVE_URL = response.json()['base_url']
+    else:
+        print(f"Failed to fetch accounts: {response.status_code}")
+        BASE_LIVE_URL = "https://m.hzmk.site/"
+
+
+def get_current_path(driver):
+    current_url = driver.current_url
+    parsed_url = urlparse(current_url)
+    path = parsed_url.path
+    return path
 
 
 def wait_for_elementv2(driver, locator, timeout=10):
@@ -109,10 +130,9 @@ def get_live_by_phone(phone):
 
 
 def update_accounts(driver):
-    global LOGIN_SUCCESS
+    global LOGIN_SUCCESS, UPDATE_INTERVAL, bigo_live
     print("update_accounts function")
     print("LOGIN_SUCCESS", LOGIN_SUCCESS)
-    global bigo_live
     data = get_live_by_phone(main_phone)
 
     if 'success' in data and data['success'] == False:
@@ -121,6 +141,14 @@ def update_accounts(driver):
         print(f"Local Account is {account}")
         bigo_live = ""
         account["live_id"] = ""
+
+        path = get_current_path(driver)
+        ac_id = path.split('/')[-1]
+
+        if str(ac_id).replace('/', '') != "" and LOGIN_SUCCESS:
+            print("Return BASE 1")
+            driver.get(f"https://m.hzmk.site/")
+
         delay(5)
         if LOGIN_SUCCESS:
             update_accounts(driver)
@@ -158,17 +186,25 @@ def update_accounts(driver):
 
     bigo_live = new_live_id
 
-    if new_live_id == "" and LOGIN_SUCCESS == True:
+    if new_live_id == "" and LOGIN_SUCCESS:
+        path = get_current_path(driver)
+        ac_id = path.split('/')[-1]
+        if str(ac_id).replace('/', '') == "":
+            print("Return BASE 2")
+            driver.get(f"https://m.hzmk.site/")
         delay(5)
         print("new_live_id is empty and we gonna run update_accounts ...")
         update_accounts(driver)
         return "Account not found"
 
+    UPDATE_INTERVAL = data['comment_time']
+
     account = {
         'phone': data['phone'],
         'password': data['password'],
         'country': data['country'],
-        'live_id': data['live_id']
+        'live_id': data['live_id'],
+        'comment_time': data['comment_time'],
     }
 
     print("Account Has Updated", account)
@@ -211,7 +247,7 @@ def wait_for_element(driver, locator):
 
 
 def move_slider(action, track_width):
-    print("WIDCTH: ** ", track_width)
+    print("WIDCTH: ** ", track_width )
     move_step = track_width // 15  # Using smaller, more precise steps
     step = 0.1
     print("move_step** ", move_step)
@@ -263,7 +299,8 @@ def handle_slider_verification(driver, max_retries=4):
                 else:
                     print("Reached maximum retries. Exiting.")
                     # driver.quit()
-                    handle_account(driver, account)
+                    handle_slider_verification(driver, 1)
+                    # handle_account(driver, account)
                     return False
             elif 'Verification successful' in captcha_text:
                 print("Captcha verification successful.")
@@ -281,19 +318,20 @@ def handle_slider_verification(driver, max_retries=4):
                 else:
                     print("Reached maximum retries. Exiting.")
                     # driver.quit()
-                    handle_account(driver, account)
+                    handle_slider_verification(driver, 1)
+                    # handle_account(driver, account)
         except Exception as e:
             print(f"Error during slider verification attempt {retry_count + 1}: {e}")
             retry_count += 1
             if retry_count >= max_retries:
                 print("Reached maximum retries due to exceptions. Exiting.")
                 # driver.quit()
-                handle_account(driver, account)
+                handle_slider_verification(driver, 1)
+                # handle_account(driver, account)
                 return False
     print("Captcha verification process completed with failures.")
-    # driver.quit()
-    handle_account(driver, account)
-    return False
+    driver.quit()
+    main()
 
 
 def handle_account(driver, account):
@@ -463,11 +501,11 @@ def sigterm_handler(signum, frame):
 
 def main():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1920x1080')
-    options.add_argument('--disable-dev-shm-usage')
+    # options.add_argument("--headless")
+    # options.add_argument('--no-sandbox')
+    # options.add_argument('--disable-gpu')
+    # options.add_argument('--window-size=1920x1080')
+    # options.add_argument('--disable-dev-shm-usage')
 
     try:
         global bigo_comments
@@ -495,4 +533,8 @@ def main():
 if __name__ == "__main__":
     signal.signal(signal.SIGTERM, sigterm_handler)
     main()
-    signal.pause()
+    try:
+        signal.pause()
+    except Exception as e:
+        input("press any key to quit")
+        exit(1)
