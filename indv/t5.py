@@ -130,35 +130,52 @@ def get_live_by_phone(phone):
 
 
 def update_accounts(driver):
-    global LOGIN_SUCCESS, UPDATE_INTERVAL, bigo_live
-    print("update_accounts function")
-    print("LOGIN_SUCCESS", LOGIN_SUCCESS)
-    data = get_live_by_phone(main_phone)
+    try:
 
-    if 'success' in data and data['success'] == False:
-        global account
-        print(f"Phone {main_phone} Not Found")
-        print(f"Local Account is {account}")
-        bigo_live = ""
-        account["live_id"] = ""
+        global LOGIN_SUCCESS, UPDATE_INTERVAL, bigo_live
+        print("update_accounts function")
+        print("LOGIN_SUCCESS", LOGIN_SUCCESS)
+        data = get_live_by_phone(main_phone)
 
-        path = get_current_path(driver)
-        ac_id = path.split('/')[-1]
+        if 'success' in data and data['success'] == False:
+            global account
+            print(f"Phone {main_phone} Not Found")
+            print(f"Local Account is {account}")
+            bigo_live = ""
+            account["live_id"] = ""
 
-        if str(ac_id).replace('/', '') != "" and LOGIN_SUCCESS:
-            print("Return BASE 1")
-            driver.get(f"https://m.hzmk.site/")
+            path = get_current_path(driver)
+            ac_id = path.split('/')[-1]
 
-        delay(5)
-        if LOGIN_SUCCESS:
-            update_accounts(driver)
-        return account
+            if str(ac_id).replace('/', '') != "" and LOGIN_SUCCESS:
+                print("Return BASE 1")
+                driver.get(f"https://m.hzmk.site/")
 
-    if bigo_live == "":
-        if data['live_id'] != "":
-            bigo_live = data['live_id']
-            print(f"bigo_live has been changed to{bigo_live} ...")
-            driver.get(f"https://m.hzmk.site/{bigo_live}")
+            delay(5)
+            if LOGIN_SUCCESS:
+                update_accounts(driver)
+            return account
+
+        if bigo_live == "":
+            if data['live_id'] != "":
+                bigo_live = data['live_id']
+                print(f"bigo_live has been changed to{bigo_live} ...")
+                driver.get(f"https://m.hzmk.site/{bigo_live}")
+                time.sleep(3)
+                try:
+                    WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
+                    )
+
+                    print(f"Page is loaded and send_btn element is present.")
+                except TimeoutException:
+                    print("Loading took too much time!")
+
+        new_live_id = data['live_id']
+
+        if ((new_live_id != bigo_live) or data['live_id'] != bigo_live) and LOGIN_SUCCESS == True:
+            print(f"new_live_id has been changed to{new_live_id} ...")
+            driver.get(f"https://m.hzmk.site/{new_live_id}")
             time.sleep(3)
             try:
                 WebDriverWait(driver, 10).until(
@@ -169,65 +186,52 @@ def update_accounts(driver):
             except TimeoutException:
                 print("Loading took too much time!")
 
-    new_live_id = data['live_id']
+        bigo_live = new_live_id
 
-    if ((new_live_id != bigo_live) or data['live_id'] != bigo_live) and LOGIN_SUCCESS == True:
-        print(f"new_live_id has been changed to{new_live_id} ...")
-        driver.get(f"https://m.hzmk.site/{new_live_id}")
-        time.sleep(3)
-        try:
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
-            )
+        if new_live_id == "" and LOGIN_SUCCESS:
+            path = get_current_path(driver)
+            ac_id = path.split('/')[-1]
+            if str(ac_id).replace('/', '') == "":
+                print("Return BASE 2")
+                driver.get(f"https://m.hzmk.site/")
+            delay(5)
+            print("new_live_id is empty and we gonna run update_accounts ...")
+            update_accounts(driver)
+            return "Account not found"
 
-            print(f"Page is loaded and send_btn element is present.")
-        except TimeoutException:
-            print("Loading took too much time!")
+        UPDATE_INTERVAL = data['comment_time']
 
-    bigo_live = new_live_id
+        account = {
+            'phone': data['phone'],
+            'password': data['password'],
+            'country': data['country'],
+            'live_id': data['live_id'],
+            'comment_time': data['comment_time'],
+        }
 
-    if new_live_id == "" and LOGIN_SUCCESS:
-        path = get_current_path(driver)
-        ac_id = path.split('/')[-1]
-        if str(ac_id).replace('/', '') == "":
-            print("Return BASE 2")
-            driver.get(f"https://m.hzmk.site/")
-        delay(5)
-        print("new_live_id is empty and we gonna run update_accounts ...")
+        print("Account Has Updated", account)
+
+        if bigo_live != "":
+            global bigo_comments
+
+            print("Bigo Current ID :", bigo_live)
+
+            if bigo_comments is not None:
+                if len(bigo_comments) < 1:
+                    print("Bigo Update Comments :")
+                    bigo_comments = update_comments()
+
+            print("bigo_comments-update_accounts", bigo_comments)
+
+            if bigo_comments is not None and LOGIN_SUCCESS == True and bigo_live != "":
+                if len(bigo_comments) > 0:
+                    print("Bigo Start Re Comment :")
+                    post_comment(driver, bigo_comments)
+
+        return account
+    except Exception as e:
         update_accounts(driver)
-        return "Account not found"
-
-    UPDATE_INTERVAL = data['comment_time']
-
-    account = {
-        'phone': data['phone'],
-        'password': data['password'],
-        'country': data['country'],
-        'live_id': data['live_id'],
-        'comment_time': data['comment_time'],
-    }
-
-    print("Account Has Updated", account)
-
-    if bigo_live != "":
-        global bigo_comments
-
-        print("Bigo Current ID :", bigo_live)
-
-        if bigo_comments is not None:
-            if len(bigo_comments) < 1:
-                print("Bigo Update Comments :")
-                bigo_comments = update_comments()
-
-        print("bigo_comments-update_accounts", bigo_comments)
-
-        if bigo_comments is not None and LOGIN_SUCCESS == True and bigo_live != "":
-            if len(bigo_comments) > 0:
-                print("Bigo Start Re Comment :")
-                post_comment(driver, bigo_comments)
-
-    return account
-
+        print(e)
 
 def update_comments():
     global bigo_comments
