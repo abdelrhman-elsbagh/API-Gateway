@@ -239,8 +239,9 @@ def update_accounts(driver):
 
         return account
     except Exception as e:
-        update_accounts(driver)
         print(e)
+        time.sleep(30)
+        update_accounts(driver)
 
 def update_comments():
     global bigo_comments
@@ -540,6 +541,7 @@ def main():
     except Exception as e:
         print(f"Error during execution 109: {str(e)}")
         print("re run main()")
+        time.sleep(30)
         main()
 
 
