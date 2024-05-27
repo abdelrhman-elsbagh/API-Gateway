@@ -503,6 +503,7 @@ def sigterm_handler(signum, frame):
     sys.exit(0)  # Exit gracefully
 
 def main():
+    sys.setrecursionlimit(10000)
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument('--no-sandbox')
