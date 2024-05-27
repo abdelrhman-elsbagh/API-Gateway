@@ -125,8 +125,17 @@ def fetch_comments(api_url):
 
 
 def get_live_by_phone(phone):
-    response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
-    return response.json()
+    try:
+        response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
+        if response.status_code == 200:
+            if response.text:
+                return response.json()
+            else:
+                return {'success': False, 'message': 'Empty response'}
+        else:
+            return {'success': False, 'message': f'Request failed with status code {response.status_code}'}
+    except Exception as e:
+        return {'success': False, 'message': str(e)}
 
 
 def update_accounts(driver):
