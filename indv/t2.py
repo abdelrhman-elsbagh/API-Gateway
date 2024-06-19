@@ -1,9 +1,14 @@
 import json
+import os
+import signal
+import sys
 import threading
 import time
+from urllib.parse import urlparse
 
 import requests
 from selenium import webdriver
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.service import Service
@@ -16,53 +21,72 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import concurrent.futures
 
-##############################################
-# from selenium import __version__ as seleniumversion
-# from seleniumwire import __version__ as seleniumwireversion
-# from selenium.webdriver.chrome.service import Service
-# from seleniumwire import webdriver
-# # A package to have a chromedriver always up-to-date.
-# from webdriver_manager.chrome import ChromeDriverManager
-# from webdriver_manager import __version__ as webdriver_manager_version
-##############################################
-
-
 API_URL = "https://skeapp.jacadix.net/api/live-data"
 BASE_URL = "https://skeapp.jacadix.net/api"
 API_Comments_URL = "https://skeapp.jacadix.net/api/comments"
 
 CHECK_INTERVAL = 10
 
-global bigo_comments, bigo_live
-bigo_live=""
+global BASE_LIVE_URL
+BASE_LIVE_URL = "https://m.hzmk.site/"
+
+global bigo_comments, bigo_live, LOGIN_SUCCESS, account
+bigo_live = ""
 bigo_comments = []
 
+LOGIN_SUCCESS = False
 
-main_phone = "1069339515"
-account = {
-        'phone': "1069339515",
-        'password': "m3290900a",
-        'country': 'Egypt',
-}
+UPDATE_INTERVAL = 30  # Update every 60 seconds
+UPDATE_20_INTERVAL = 20  # Update every 20 seconds
 
+json_file_path = os.path.join(os.getcwd(), 'account_data.json')
+with open(json_file_path, 'r') as json_file:
+    data = json.load(json_file)
 
-def post_comment(driver, bigo_comments):
+# Extract the values
+main_phone = data['main_phone']
+account = data['account']
+
+print("Main Phone:", main_phone)
+print("Account Details:", account)
+
+def fetch_config():
+    global BASE_LIVE_URL
+    response = requests.get(f"{BASE_URL}/config")
+    if response.status_code == 200:
+        BASE_LIVE_URL = response.json()['base_url']
+    else:
+        print(f"Failed to fetch accounts: {response.status_code}")
+        BASE_LIVE_URL = "https://m.hzmk.site/"
+
+def get_current_path(driver):
+    current_url = driver.current_url
+    parsed_url = urlparse(current_url)
+    path = parsed_url.path
+    return path
+
+def wait_for_elementv2(driver, locator, timeout=10):
+    return WebDriverWait(driver, timeout).until(EC.visibility_of_element_located(locator))
+
+def post_comment(driver, comments):
     try:
         time.sleep(2)
         textarea_locator = (By.CSS_SELECTOR, "textarea")
-
-        # Wait for the textarea to be present and visible
         textarea = wait_for_element(driver, textarea_locator)
-
-        print("write comment")
+        print("write post_comment")
         time.sleep(1)
 
-        # Choose a random comment and post it
-        random_comment = random.choice(bigo_comments)
-        textarea.send_keys(random_comment)
-        time.sleep(2)
-        textarea.send_keys(Keys.ENTER)
+        if comments is None:
+            comments = update_comments()
 
+        if len(comments) < 1:
+            comments = update_comments()
+
+        random_comment = random.choice(comments)
+        textarea.send_keys(str(random_comment))
+        time.sleep(2)
+        print("Current Comment: ", random_comment)
+        textarea.send_keys(Keys.ENTER)
         print("end write comment")
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -76,61 +100,136 @@ def fetch_comments(api_url):
         return []
 
 def get_live_by_phone(phone):
-    response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
-    return response.json()
+    try:
+        response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
+        if response.status_code == 200:
+            if response.text:
+                return response.json()
+            else:
+                return {'success': False, 'message': 'Empty response'}
+        else:
+            return {'success': False, 'message': f'Request failed with status code {response.status_code}'}
+    except Exception as e:
+        return {'success': False, 'message': str(e)}
 
 def update_accounts(driver):
-    global bigo_live
-    data = get_live_by_phone(main_phone)
+    try:
+        global LOGIN_SUCCESS, UPDATE_INTERVAL, bigo_live
+        print("update_accounts function")
+        print("LOGIN_SUCCESS", LOGIN_SUCCESS)
+        data = get_live_by_phone(main_phone)
 
-    if 'success' in data and data['success'] == False:
-        delay(5)
+        if 'success' in data and data['success'] == False:
+            global account
+            print(f"Phone {main_phone} Not Found")
+            print(f"Local Account is {account}")
+            bigo_live = ""
+            account["live_id"] = ""
+
+            path = get_current_path(driver)
+            ac_id = path.split('/')[-1]
+
+            if str(ac_id).replace('/', '') != "" and LOGIN_SUCCESS:
+                print("Return BASE 1")
+                driver.get(f"https://m.hzmk.site/")
+
+            delay(5)
+            if LOGIN_SUCCESS:
+                update_accounts(driver)
+            return account
+
+        if bigo_live == "":
+            if data['live_id'] != "":
+                bigo_live = data['live_id']
+                print(f"bigo_live has been changed to{bigo_live} ...")
+                driver.get(f"https://m.hzmk.site/{bigo_live}")
+                time.sleep(3)
+                try:
+                    WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
+                    )
+                    print(f"Page is loaded and send_btn element is present.")
+                except TimeoutException:
+                    print("Loading took too much time!")
+
+        new_live_id = data['live_id']
+
+        if ((new_live_id != bigo_live) or data['live_id'] != bigo_live) and LOGIN_SUCCESS == True:
+            print(f"new_live_id has been changed to{new_live_id} ...")
+            driver.get(f"https://m.hzmk.site/{new_live_id}")
+            time.sleep(3)
+            try:
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
+                )
+                print(f"Page is loaded and send_btn element is present.")
+            except TimeoutException:
+                print("Loading took too much time!")
+
+        bigo_live = new_live_id
+
+        if new_live_id == "" and LOGIN_SUCCESS:
+            path = get_current_path(driver)
+            ac_id = path.split('/')[-1]
+            if str(ac_id).replace('/', '') == "":
+                print("Return BASE 2")
+                driver.get(f"https://m.hzmk.site/")
+            delay(5)
+            print("new_live_id is empty and we gonna run update_accounts ...")
+            update_accounts(driver)
+            return "Account not found"
+
+        UPDATE_INTERVAL = data['comment_time']
+
+        account = {
+            'phone': data['phone'],
+            'password': data['password'],
+            'country': data['country'],
+            'live_id': data['live_id'],
+            'comment_time': data['comment_time'],
+        }
+
+        print("Account Has Updated", account)
+
+        if bigo_live != "":
+            global bigo_comments
+
+            print("Bigo Current ID :", bigo_live)
+
+            if bigo_comments is not None:
+                if len(bigo_comments) < 1:
+                    print("Bigo Update Comments :")
+                    bigo_comments = update_comments()
+
+            print("bigo_comments-update_accounts", bigo_comments)
+
+            if bigo_comments is not None and LOGIN_SUCCESS == True and bigo_live != "":
+                if len(bigo_comments) > 0:
+                    print("Bigo Start Re Comment :")
+                    post_comment(driver, bigo_comments)
+
+        return account
+    except Exception as e:
+        print(e)
+        time.sleep(30)
         update_accounts(driver)
-        return "Account not found"
-
-    new_live_id = data['live_id']
-
-    if new_live_id != bigo_live:
-        driver.get(f"https://m.hzmk.site/{new_live_id}")
-        time.sleep(3)
-
-    bigo_live = new_live_id
-
-    account = {
-        'phone': data['phone'],
-        'password': data['password'],
-        'country': data['country'],
-        'live_id': data['live_id']
-    }
-
-    return account
 
 def update_comments():
+    global bigo_comments
+    bigo_comments = []
     comments_data = fetch_comments(API_Comments_URL)
     for comment in comments_data:
         bigo_comments.append(comment['comment'])
-
+    return bigo_comments
 
 def delay(delay=0.2):
     time.sleep(delay)
 
-
-def chrome_proxy(user: str, password: str, endpoint: str) -> dict:
-    wire_options = {
-        "proxy": {
-            "http": f"https://{user}:{password}@{endpoint}",
-            "https": f"https://{user}:{password}@{endpoint}",
-        }
-    }
-    return wire_options
-
-
 def wait_for_element(driver, locator):
     return WebDriverWait(driver, 30).until(EC.visibility_of_element_located(locator))
 
-
 def move_slider(action, track_width):
-    print("WIDCTH: ** ", track_width)
+    print("WIDCTH: ** ", track_width )
     move_step = track_width // 15  # Using smaller, more precise steps
     step = 0.1
     print("move_step** ", move_step)
@@ -138,10 +237,7 @@ def move_slider(action, track_width):
     for i in range(25):
         action.move_by_offset(move_step, 0)  # Move horizontally without vertical deviation
         action.pause(step)
-        # action.pause(random.uniform(0.05, 0.1))
-        # action.pause(0.15)
-        delay(0.01)
-
+        delay(0.1)
 
 def handle_slider_verification(driver, max_retries=4):
     retry_count = 0
@@ -181,8 +277,7 @@ def handle_slider_verification(driver, max_retries=4):
                     time.sleep(2)
                 else:
                     print("Reached maximum retries. Exiting.")
-                    driver.quit()
-                    handle_account(driver, account)
+                    handle_slider_verification(driver, 1)
                     return False
             elif 'Verification successful' in captcha_text:
                 print("Captcha verification successful.")
@@ -199,25 +294,22 @@ def handle_slider_verification(driver, max_retries=4):
                     time.sleep(2)
                 else:
                     print("Reached maximum retries. Exiting.")
-                    driver.quit()
-                    handle_account(driver, account)
+                    handle_slider_verification(driver, 1)
         except Exception as e:
             print(f"Error during slider verification attempt {retry_count + 1}: {e}")
             retry_count += 1
             if retry_count >= max_retries:
                 print("Reached maximum retries due to exceptions. Exiting.")
-                driver.quit()
-                handle_account(driver, account)
+                handle_slider_verification(driver, 1)
                 return False
     print("Captcha verification process completed with failures.")
     driver.quit()
-    handle_account(driver, account)
-    return False
-
+    main()
 
 def handle_account(driver, account):
     print("handle_account started")
-    global bigo_live
+    global bigo_live, LOGIN_SUCCESS
+
     bigo_phone = account['phone']
     bigo_password = account['password']
     bigo_country = account['country']
@@ -225,7 +317,6 @@ def handle_account(driver, account):
     print(f"Handling account with live_id: {bigo_live}")
 
     print(f"Init Open Live {bigo_live}")
-    # Open the URL
     driver.get(f"https://m.hzmk.site/{bigo_live}")
     WebDriverWait(driver, 10).until(lambda driver: driver.execute_script('return document.readyState;') == 'complete')
     print(f"End Openninig {bigo_live}")
@@ -238,7 +329,6 @@ def handle_account(driver, account):
             privacy_confirm_element.click()
             delay()
         except:
-            driver.quit()
             handle_account(driver, account)
 
         print('Middle')
@@ -251,7 +341,6 @@ def handle_account(driver, account):
             delay()
             print("End privacy")
         except:
-            driver.quit()
             handle_account(driver, account)
 
         try:
@@ -261,7 +350,6 @@ def handle_account(driver, account):
             login_button.click()
             delay()
         except:
-            driver.quit()
             handle_account(driver, account)
 
         try:
@@ -271,7 +359,6 @@ def handle_account(driver, account):
             sign_up_link.click()
             delay()
         except:
-            driver.quit()
             handle_account(driver, account)
 
         try:
@@ -281,7 +368,6 @@ def handle_account(driver, account):
             login_tab_button.click()
             delay()
         except:
-            driver.quit()
             handle_account(driver, account)
 
         try:
@@ -291,7 +377,6 @@ def handle_account(driver, account):
             country_select_component.click()
             delay()
         except:
-            driver.quit()
             handle_account(driver, account)
 
         country_li = WebDriverWait(driver, 110).until(
@@ -313,10 +398,9 @@ def handle_account(driver, account):
         delay()
 
         print("Sleep")
-        time.sleep(3)
+        time.sleep(5)
         print("Wake")
 
-        ## Handle Slider
         handle_slider_verification(driver)
 
         time.sleep(1)
@@ -325,60 +409,89 @@ def handle_account(driver, account):
         submit_login.click()
         print("end login")
 
-        print("open live")
-        time.sleep(2)
-        textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
-        WebDriverWait(driver, 10).until(textarea_present)
-        textarea_locator = (By.CSS_SELECTOR, "textarea")
-        wait_for_element(driver, textarea_locator)
-        print("write comment")
         try:
-            post_comment(driver, bigo_comments)
+            time.sleep(2)
+            textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
+            WebDriverWait(driver, 10).until(textarea_present)
+            textarea_locator = (By.CSS_SELECTOR, "textarea")
+            wait_for_element(driver, textarea_locator)
+            print("open live")
         except Exception as e:
-            post_comment(driver, bigo_comments)
-            print("end write comment 2")
-            print(f"Error in sending text to textarea: {str(e)}")
+            print("open live 2")
+            print(f"Error in located : {str(e)}")
+            LOGIN_SUCCESS = True
+            return True
+
+        if bigo_live != "":
+            print("write comment main")
+            try:
+                global bigo_comments
+                print("bigo_comments-handle_account", bigo_comments)
+                bigo_comments = update_comments()
+                post_comment(driver, bigo_comments)
+            except Exception as e:
+                print("end write comment 2")
+                print(f"Error in sending text to textarea: {str(e)}")
 
     except Exception as e:
         print(f"Error during execution 101: {str(e)}")
+        print("re run handle_account() 101")
+        handle_account(driver, account)
 
-    # Final actions or cleanup
-    input("Press any key to close the browser...")
-    # driver.quit()
-
-
-UPDATE_INTERVAL = 60  # Update every 60 seconds (1 minute)
+    LOGIN_SUCCESS = True
 
 def periodic_update(driver):
     while True:
         updated_account = update_accounts(driver)
-        print('updated_account', updated_account)
+        print('periodic_update function', updated_account)
         time.sleep(UPDATE_INTERVAL)
 
+def periodic_put_comment(driver, bigo_comments):
+    while True:
+        updated_comment = post_comment(driver, bigo_comments)
+        print('updated_account', updated_comment)
+        time.sleep(UPDATE_20_INTERVAL)
+
+def sigterm_handler(signum, frame):
+    print("Press Enter to close the browser...")
+    sys.exit(0)
+
 def main():
-    options = Options()
+    sys.setrecursionlimit(100000)
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1920x1080')
-    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--proxy-server=http://192.168.1.4:30001')  # Proxy configuration
+    # options.add_argument("--headless")
+    # options.add_argument('--no-sandbox')
+    # options.add_argument('--disable-gpu')
+    # options.add_argument('--window-size=1920x1080')
+    # options.add_argument('--disable-dev-shm-usage')
 
     try:
+        global bigo_comments
         print("Init Driver")
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         print("End Driver")
         updated_account = update_accounts(driver)
-        update_comments()
+        bigo_comments = update_comments()
         print('updated_account', updated_account)
         print('bigo_comments', bigo_comments)
         print("Initial bigo_live:", bigo_live)
         handle_account(driver, updated_account)
+
         update_thread = threading.Thread(target=periodic_update, args=(driver,), daemon=True)
         update_thread.start()
-    except Exception as e:
-        print(f"Error during execution 101: {str(e)}")
 
+    except Exception as e:
+        print(f"Error during execution 109: {str(e)}")
+        print("re run main()")
+        time.sleep(30)
+        main()
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, sigterm_handler)
     main()
+    try:
+        signal.pause()
+    except Exception as e:
+        input("press any key to quit")
+        exit(1)
