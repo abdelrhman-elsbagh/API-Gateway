@@ -1,0 +1,202 @@
+[
+  {
+    "name": "_ym_uid",
+    "value": "1716102533904417531",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1747638532,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "_ym_d",
+    "value": "1716102533",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1747638532,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "i18n_redirected",
+    "value": "en",
+    "domain": "m.hzmk.site",
+    "path": "/",
+    "expires": 1756126412,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_gcl_au",
+    "value": "1.1.449896984.1724323630",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1732099630,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_fbp",
+    "value": "fb.1.1724323632770.888420589912431663",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1732366411,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "afUserId",
+    "value": "a3ea8a62-5ec4-428c-b690-db712b0d5d5a-p",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759150413.622613,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "AF_SYNC",
+    "value": "1724323632998",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724928432,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_gid",
+    "value": "GA1.2.2014517725.1724551296",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724676811,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ym_isad",
+    "value": "2",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724623296,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "_clck",
+    "value": "gf7vb%7C2%7Cfom%7C0%7C1695",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1756087296,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "data5",
+    "value": "http%3A%2F%2Fesx.bigo.sg%2Feu_live%2F2u7%2F2YGP4T_2.jpg%3Ftype%3D20",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "user_name",
+    "value": "841497878.",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "yyuid",
+    "value": "682125425",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "_ym_visorc",
+    "value": "b",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724592212,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "uniqid",
+    "value": "ljhzwSfHjD7HnUKBi4UQU2HkSNVWQ85YmRaCFLbKrGGq6vT5s0wlS78Ufj8pRgHJ0DapYkmaszwtVfcS8ZoZoEGq9COjZNrib95sMUHRcMmCCSf63mO2TVlK000z9j1iKlrRvhtVlHYuU41Ioc8osoPumUlC0tywMUakDj0v9lKwKeyjJ99fGHGnSg9YbbULoHNROv5Dv0FwrDCwwol00304yDQmS1BqCCxnJ6iVIk5mOKAHzBcZymLQhqLD04vYjy0pWW52p4aalBGuA",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "tid",
+    "value": "ljhzwSfHjD7HnUKBi4UQU2HkSNVWQ85YmRaCFLbKrGGq6vT5s0wlS78Ufj8pRgHJ0DapYkmaszwtVfcS8ZoZoEGq9COjZNrib95sMUHRcMmCCSf63mO2TVlK000z9j1iKlrRvhtVlHYuU41Ioc8osoPumUlC0tywMUakDj0v9lKwKeyjJ99fGHGnSg9YbbULoHNROv5Dv0FwrDCwwol00304yDQmS1BqCCxnJ6iVIk5mOKAHzBcZymLQhqLD04vYjy0pWW52p4aalBGuA",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "_ga_GZZDWRLKFR",
+    "value": "GS1.1.1724590379.3.1.1724590411.28.0.0",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759150411.96437,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_clsk",
+    "value": "z0v7l2%7C1724590412560%7C2%7C0%7Cu.clarity.ms%2Fcollect",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724676812,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ga_2S7YW668S5",
+    "value": "GS1.1.1724590380.3.1.1724590413.27.0.0",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759150413.277109,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ga",
+    "value": "GA1.1.606463825.1724323631",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759150413.277704,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "nick_name",
+    "value": "682125425",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "head_icon_url",
+    "value": "http%3A%2F%2Fesx.bigo.sg%2Feu_live%2F2u7%2F2YGP4T_2.jpg%3Ftype%3D20",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  }
+]

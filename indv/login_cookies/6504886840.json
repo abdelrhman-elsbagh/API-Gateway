@@ -1,0 +1,202 @@
+[
+  {
+    "name": "_ym_uid",
+    "value": "1716102533904417531",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1747638532,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "_ym_d",
+    "value": "1716102533",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1747638532,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "i18n_redirected",
+    "value": "en",
+    "domain": "m.hzmk.site",
+    "path": "/",
+    "expires": 1756128895,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_gcl_au",
+    "value": "1.1.449896984.1724323630",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1732099630,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_fbp",
+    "value": "fb.1.1724323632770.888420589912431663",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1732368894,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "afUserId",
+    "value": "a3ea8a62-5ec4-428c-b690-db712b0d5d5a-p",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759152896.192473,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "AF_SYNC",
+    "value": "1724323632998",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724928432,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_gid",
+    "value": "GA1.2.2014517725.1724551296",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724679294,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ym_isad",
+    "value": "2",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724623296,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "_clck",
+    "value": "gf7vb%7C2%7Cfom%7C0%7C1695",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1756087296,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ym_visorc",
+    "value": "b",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724594694,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "data5",
+    "value": "http%3A%2F%2Fesx.bigo.sg%2Feu_live%2F2u3%2F1QvY6Y.png",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "_gat_UA-167434529-1",
+    "value": "1",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724592946,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "uniqid",
+    "value": "27cLvnVI8iC2aKoqkJmQb8IDDiUzpe81bFNnODilew8E8p9wCOdpGxPIWohAKwzpSAkaIRBkBjYmGzBA5C4nCxWIrSboe9LWSmQdjyH5GkNaRSzS9Q88VoL6sVgTOq1D1uAzhSEFD6z7kRBOWFIiFt31E4GFI9FmhsJQPH1O5IrKuvDiR2w4ZnWbxNtrenn8tEMLrM7d2fQuxNcIub4vB0yhXUeIaxWGyqWICRUVKhpOcvBlWcGpExhi1E1Z5l8V4ZLbm4NjGcAs82FxH",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "tid",
+    "value": "27cLvnVI8iC2aKoqkJmQb8IDDiUzpe81bFNnODilew8E8p9wCOdpGxPIWohAKwzpSAkaIRBkBjYmGzBA5C4nCxWIrSboe9LWSmQdjyH5GkNaRSzS9Q88VoL6sVgTOq1D1uAzhSEFD6z7kRBOWFIiFt31E4GFI9FmhsJQPH1O5IrKuvDiR2w4ZnWbxNtrenn8tEMLrM7d2fQuxNcIub4vB0yhXUeIaxWGyqWICRUVKhpOcvBlWcGpExhi1E1Z5l8V4ZLbm4NjGcAs82FxH",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "_ga_GZZDWRLKFR",
+    "value": "GS1.1.1724592342.4.1.1724592894.50.0.0",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759152894.627683,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_clsk",
+    "value": "wt0h7%7C1724592895067%7C2%7C0%7Ck.clarity.ms%2Fcollect",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724679295,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ga_2S7YW668S5",
+    "value": "GS1.1.1724592344.4.1.1724592895.50.0.0",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759152895.742032,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ga",
+    "value": "GA1.1.606463825.1724323631",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759152895.742584,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "nick_name",
+    "value": ".%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "user_name",
+    "value": "468722938",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "yyuid",
+    "value": "681425527",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  }
+]

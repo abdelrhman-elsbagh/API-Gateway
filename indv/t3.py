@@ -59,6 +59,7 @@ def save_login_data(file_path, data):
 
 # Load cookies from a JSON file
 def load_cookies(driver, cookies_file):
+    print("cookies_file ", str(cookies_file))
     global LOGIN_SUCCESS
     if os.path.exists(cookies_file):
         with open(cookies_file, 'r') as f:
@@ -67,13 +68,15 @@ def load_cookies(driver, cookies_file):
                 driver.add_cookie(cookie)
         print("Cookies loaded successfully.")
         LOGIN_SUCCESS = True
-        update_in_use_status(main_phone, True)
+        # print("Loaded Cookies:", driver.get_cookies())
+        # update_in_use_status(main_phone, True)
     else:
         print("No cookies file found. Login required.")
 
 
 # Save cookies to a JSON file
 def save_cookies(driver, cookies_file):
+    print("driver.get_cookies", driver.get_cookies())
     if not os.path.exists(cookies_file):
         with open(cookies_file, 'w') as f:
             json.dump(driver.get_cookies(), f)
@@ -89,7 +92,7 @@ account = login_data.get('account', {})
 folder_path = os.path.join(os.getcwd(), 'login_cookies')
 # Ensure the folder exists
 os.makedirs(folder_path, exist_ok=True)
-cookies_file_path = os.path.join(folder_path, f'{main_phone}_cookies.json')
+cookies_file_path = os.path.join(folder_path, f'{main_phone}.json')
 
 print("Main Phone:", main_phone)
 print("Account Details:", account)
@@ -431,10 +434,11 @@ def handle_account(driver, account):
     bigo_live = account['live_id']
     print(f"Handling account with live_id: {bigo_live}")
 
-    print(f"Init Open Live {bigo_live}")
-    driver.get(f"https://m.hzmk.site/{bigo_live}")
-    WebDriverWait(driver, 10).until(lambda driver: driver.execute_script('return document.readyState;') == 'complete')
-    print(f"End Openninig {bigo_live}")
+    if bigo_live != "":
+        print(f"Init Open Live {bigo_live}")
+        driver.get(f"https://m.hzmk.site/{bigo_live}")
+        WebDriverWait(driver, 10).until(lambda driver: driver.execute_script('return document.readyState;') == 'complete')
+        print(f"End Openninig {bigo_live}")
     try:
         try:
             print("Accept privacy")
@@ -531,9 +535,14 @@ def handle_account(driver, account):
         print("end login")
 
         # Save cookies after successful login
+
+        # try:
+        #     update_in_use_status(main_phone, True)
+        # except Exception as update_in_use_status_err:
+        #     print("update_in_use_status_err", update_in_use_status_err)
+
         print("Save Cookie Number ", main_phone)
         save_cookies(driver, cookies_file_path)
-        update_in_use_status(main_phone, True)
 
         try:
             time.sleep(2)
@@ -588,18 +597,18 @@ def sigterm_handler(signum, frame):
 
 
 def main():
-    get_account()
-    # proxy = "192.168.1.6:30000"
+    # get_account()
+    # proxy = "192.168.1.6:30002"
     sys.setrecursionlimit(100000)
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920x1080')
     options.add_argument('--disable-dev-shm-usage')
     # options.add_argument(f'--proxy-server={proxy}')
 
-    # port = 30003
+    port = 30002
     # options = webdriver.FirefoxOptions()
     # options.set_preference('network.proxy.type', 1)
     # options.set_preference('network.proxy.http', '192.168.1.6')
@@ -610,8 +619,9 @@ def main():
     # options.set_preference('network.proxy.socks_port', port)
     # options.set_preference('network.proxy.ftp', '192.168.1.6')
     # options.set_preference('network.proxy.ftp_port', port)
-
-
+    # # options.set_preference('network.proxy.no_proxies_on', '')
+    # options.add_argument('--disable-gpu')
+    # options.add_argument('--no-sandbox')
 
     try:
         global bigo_comments
