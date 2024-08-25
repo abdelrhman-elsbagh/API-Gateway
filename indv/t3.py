@@ -38,7 +38,7 @@ bigo_comments = []
 LOGIN_SUCCESS = False
 
 UPDATE_INTERVAL = 30  # Update every 60 seconds
-UPDATE_20_INTERVAL = 20  # Update every 20 seconds
+UPDATE_20_INTERVAL = 60  # Update every 20 seconds
 
 json_file_path = os.path.join(os.getcwd(), 'account_data.json')
 
@@ -67,15 +67,19 @@ def load_cookies(driver, cookies_file):
                 driver.add_cookie(cookie)
         print("Cookies loaded successfully.")
         LOGIN_SUCCESS = True
+        update_in_use_status(main_phone, True)
     else:
         print("No cookies file found. Login required.")
 
 
 # Save cookies to a JSON file
 def save_cookies(driver, cookies_file):
-    with open(cookies_file, 'w') as f:
-        json.dump(driver.get_cookies(), f)
-    print("Cookies saved successfully.")
+    if not os.path.exists(cookies_file):
+        with open(cookies_file, 'w') as f:
+            json.dump(driver.get_cookies(), f)
+        print("Cookies saved successfully.")
+    else:
+        print(f"The file '{cookies_file}' already exists. Cookies were not saved.")
 
 
 # Load existing login data or initialize with default values
@@ -149,6 +153,54 @@ def fetch_comments(api_url):
     else:
         print(f"Failed to fetch accounts: {response.status_code}")
         return []
+
+
+import requests
+
+
+def update_in_use_status(phone_number, in_use):
+    # Define the API endpoint
+    endpoint = f"{BASE_URL}/update-in-use"
+
+    # Prepare the data payload
+    payload = {
+        "phone": phone_number,
+        "in_use": in_use
+    }
+
+    try:
+        # Send a POST request to the API
+        response = requests.post(endpoint, json=payload)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            print(f"Successfully updated 'in_use' status for phone {phone_number}.")
+            return response.json()
+        else:
+            print(f"Failed to update 'in_use' status. Status code: {response.status_code}")
+            print("Response:", response.text)
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+
+
+def get_account():
+    # Step 1: Call the endpoint
+    url = f"{BASE_URL}/available-account"
+    response = requests.get(url)
+
+    # Step 2: Check if the response is successful
+    if response.status_code == 200:
+        account_data = response.json()
+
+        # Step 3: Write the data to a JSON file
+        with open('account_data.json', 'w') as file:
+            json.dump(account_data, file, indent=4)
+
+        print("Account data saved to 'account_data.json'")
+    else:
+        print(f"Failed to retrieve account data. Status code: {response.status_code}")
+
 
 
 def get_live_by_phone(phone):
@@ -478,6 +530,11 @@ def handle_account(driver, account):
         submit_login.click()
         print("end login")
 
+        # Save cookies after successful login
+        print("Save Cookie Number ", main_phone)
+        save_cookies(driver, cookies_file_path)
+        update_in_use_status(main_phone, True)
+
         try:
             time.sleep(2)
             textarea_present = EC.presence_of_element_located((By.CSS_SELECTOR, "textarea"))
@@ -508,8 +565,6 @@ def handle_account(driver, account):
         handle_account(driver, account)
 
     LOGIN_SUCCESS = True
-    # Save cookies after successful login
-    save_cookies(driver, cookies_file_path)
     update_accounts(driver)
 
 
@@ -533,19 +588,36 @@ def sigterm_handler(signum, frame):
 
 
 def main():
+    get_account()
     proxy = "192.168.1.6:30000"
     sys.setrecursionlimit(100000)
-    # options = webdriver.ChromeOptions()
-    options = webdriver.FirefoxOptions()
-    options.add_argument(f'--proxy-server={proxy}')
-    options.add_argument('--disable-gpu')
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
     options.add_argument('--no-sandbox')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1920x1080')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument(f'--proxy-server={proxy}')
+
+    # port = 30003
+    # options = webdriver.FirefoxOptions()
+    # options.set_preference('network.proxy.type', 1)
+    # options.set_preference('network.proxy.http', '192.168.1.6')
+    # options.set_preference('network.proxy.http_port', port)
+    # options.set_preference('network.proxy.ssl', '192.168.1.6')
+    # options.set_preference('network.proxy.ssl_port', port)
+    # options.set_preference('network.proxy.socks', '192.168.1.6')
+    # options.set_preference('network.proxy.socks_port', port)
+    # options.set_preference('network.proxy.ftp', '192.168.1.6')
+    # options.set_preference('network.proxy.ftp_port', port)
+
+
 
     try:
         global bigo_comments
         print("Init Driver")
-        driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
-        # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        # driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         print("End Driver")
         driver.get("https://m.hzmk.site/")
         load_cookies(driver, cookies_file_path)
@@ -580,5 +652,6 @@ if __name__ == "__main__":
     try:
         signal.pause()
     except Exception as e:
+        update_in_use_status(main_phone, False)
         input("press any key to quit")
         exit(1)
