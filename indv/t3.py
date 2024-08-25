@@ -589,7 +589,7 @@ def sigterm_handler(signum, frame):
 
 def main():
     get_account()
-    proxy = "192.168.1.6:30000"
+    # proxy = "192.168.1.6:30000"
     sys.setrecursionlimit(100000)
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
@@ -597,7 +597,7 @@ def main():
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920x1080')
     options.add_argument('--disable-dev-shm-usage')
-    options.add_argument(f'--proxy-server={proxy}')
+    # options.add_argument(f'--proxy-server={proxy}')
 
     # port = 30003
     # options = webdriver.FirefoxOptions()
