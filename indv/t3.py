@@ -31,16 +31,45 @@ CHECK_INTERVAL = 10
 
 BASE_LIVE_URL = "https://m.hzmk.site/"
 
-global bigo_comments, bigo_live, LOGIN_SUCCESS, account
+global bigo_comments, bigo_live, LOGIN_SUCCESS, account, main_phone
 bigo_live = ""
 bigo_comments = []
 
 LOGIN_SUCCESS = False
 
 UPDATE_INTERVAL = 30  # Update every 60 seconds
-UPDATE_20_INTERVAL = 60  # Update every 20 seconds
+UPDATE_20_INTERVAL = 6  # Update every 20 seconds
 
 json_file_path = os.path.join(os.getcwd(), 'account_data.json')
+
+
+def get_account():
+    current_account = None
+    global main_phone, account
+    # Check if the 'account_data.json' file exists
+    if not os.path.exists('account_data.json'):
+        # Step 1: Call the endpoint
+        url = f"{BASE_URL}/available-account"
+        response = requests.get(url)
+
+        # Step 2: Check if the response is successful
+        print("Fetch Account is ", response.json())
+        if response.status_code == 200:
+            current_account = response.json()
+            print("get_account phone", current_account.get('main_phone'))
+            main_phone = current_account.get('main_phone')
+            account = current_account.get('account', {})
+            # Step 3: Write the data to a JSON file
+            with open('account_data.json', 'w') as file:
+                json.dump(current_account, file, indent=4)
+            print("Account data saved to 'account_data.json'")
+            return current_account
+        else:
+            print(f"Failed to retrieve account data. Status code: {response.status_code}")
+    else:
+        print("'account_data.json' already exists, skipping the request.")
+
+    return current_account
 
 
 # Load the login data from JSON file if it exists
@@ -69,7 +98,7 @@ def load_cookies(driver, cookies_file):
         print("Cookies loaded successfully.")
         LOGIN_SUCCESS = True
         # print("Loaded Cookies:", driver.get_cookies())
-        # update_in_use_status(main_phone, True)
+        update_in_use_status(main_phone, True)
     else:
         print("No cookies file found. Login required.")
 
@@ -89,6 +118,11 @@ def save_cookies(driver, cookies_file):
 login_data = load_login_data(json_file_path)
 main_phone = login_data.get('main_phone', '')
 account = login_data.get('account', {})
+
+if main_phone == '' or main_phone is None:
+    main_phone = get_account().get('main_phone')
+    # account = get_account().get('account')
+
 folder_path = os.path.join(os.getcwd(), 'login_cookies')
 # Ensure the folder exists
 os.makedirs(folder_path, exist_ok=True)
@@ -162,6 +196,7 @@ import requests
 
 
 def update_in_use_status(phone_number, in_use):
+    print("update_in_use_status", phone_number, in_use)
     # Define the API endpoint
     endpoint = f"{BASE_URL}/update-in-use"
 
@@ -187,26 +222,8 @@ def update_in_use_status(phone_number, in_use):
         print(f"An error occurred: {e}")
 
 
-def get_account():
-    # Step 1: Call the endpoint
-    url = f"{BASE_URL}/available-account"
-    response = requests.get(url)
-
-    # Step 2: Check if the response is successful
-    if response.status_code == 200:
-        account_data = response.json()
-
-        # Step 3: Write the data to a JSON file
-        with open('account_data.json', 'w') as file:
-            json.dump(account_data, file, indent=4)
-
-        print("Account data saved to 'account_data.json'")
-    else:
-        print(f"Failed to retrieve account data. Status code: {response.status_code}")
-
-
-
 def get_live_by_phone(phone):
+    response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
     try:
         response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
         if response.status_code == 200:
@@ -437,7 +454,8 @@ def handle_account(driver, account):
     if bigo_live != "":
         print(f"Init Open Live {bigo_live}")
         driver.get(f"https://m.hzmk.site/{bigo_live}")
-        WebDriverWait(driver, 10).until(lambda driver: driver.execute_script('return document.readyState;') == 'complete')
+        WebDriverWait(driver, 10).until(
+            lambda driver: driver.execute_script('return document.readyState;') == 'complete')
         print(f"End Openninig {bigo_live}")
     try:
         try:
@@ -581,14 +599,15 @@ def periodic_update(driver):
     while True:
         updated_account = update_accounts(driver)
         print('periodic_update function', updated_account)
-        time.sleep(UPDATE_INTERVAL)
+        time.sleep(UPDATE_INTERVAL * 60)
 
 
 def periodic_put_comment(driver, bigo_comments):
     while True:
         updated_comment = post_comment(driver, bigo_comments)
         print('updated_account', updated_comment)
-        time.sleep(UPDATE_20_INTERVAL)
+        # print('UPDATE_20_INTERVAL', UPDATE_20_INTERVAL)
+        # time.sleep(UPDATE_20_INTERVAL * 60)
 
 
 def sigterm_handler(signum, frame):
@@ -597,11 +616,12 @@ def sigterm_handler(signum, frame):
 
 
 def main():
-    # get_account()
+    get_account()
+
     # proxy = "192.168.1.6:30002"
     sys.setrecursionlimit(100000)
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920x1080')
@@ -623,37 +643,39 @@ def main():
     # options.add_argument('--disable-gpu')
     # options.add_argument('--no-sandbox')
 
-    try:
-        global bigo_comments
-        print("Init Driver")
-        # driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-        print("End Driver")
-        driver.get("https://m.hzmk.site/")
-        load_cookies(driver, cookies_file_path)
-        driver.refresh()
+    # try:
+    global bigo_comments, main_phone, account
+    print("Init Driver")
+    # driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    print("End Driver")
+    driver.get("https://m.hzmk.site/")
+    load_cookies(driver, cookies_file_path)
 
-        if not driver.get_cookie('sessionid'):
-            print("sessionid not found")
-            updated_account = update_accounts(driver)
-            bigo_comments = update_comments()
-            print('updated_account_co', updated_account)
-            print('bigo_comments_co', bigo_comments)
-            print("Initial bigo_live_co:", bigo_live)
-            handle_account(driver, updated_account)
-        else:
-            print("Session restored from cookies.")
-            update_accounts(driver)
+    driver.refresh()
 
-        print("Abdel Login Status", LOGIN_SUCCESS)
-        update_thread = threading.Thread(target=periodic_update, args=(driver,), daemon=True)
-        update_thread.start()
+    # if not driver.get_cookie('user_name'):
+    if not os.path.exists(cookies_file_path):
+        print("sessionid not found", cookies_file_path)
+        updated_account = update_accounts(driver)
+        bigo_comments = update_comments()
+        print('updated_account_co', updated_account)
+        print('bigo_comments_co', bigo_comments)
+        print("Initial bigo_live_co:", bigo_live)
+        handle_account(driver, updated_account)
+    else:
+        print("Session restored from cookies.")
+        update_accounts(driver)
 
-    except Exception as e:
-        print(f"Error during execution 109: {str(e)}")
-        print("re run main()")
-        time.sleep(30)
-        main()
+    print("Abdel Login Status", LOGIN_SUCCESS)
+    update_thread = threading.Thread(target=periodic_update, args=(driver,), daemon=True)
+    update_thread.start()
+
+    # except Exception as e:
+    #     print(f"Error during execution 109: {str(e)}")
+    #     print("re run main()")
+    #     time.sleep(30)
+    #     main()
 
 
 if __name__ == "__main__":
