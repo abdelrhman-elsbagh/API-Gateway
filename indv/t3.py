@@ -597,6 +597,11 @@ def handle_account(driver, account):
 
 def periodic_update(driver):
     while True:
+        # try:
+        #     element = driver.find_element(By.CLASS_NAME, 'live--off-title')
+        #     print("Class 'live--off-title' exists on the page.")
+        # except:
+        #     print("Class 'live--off-title' does not exist on the page.")
         updated_account = update_accounts(driver)
         print('periodic_update function', updated_account)
         time.sleep(UPDATE_INTERVAL * 60)
@@ -621,7 +626,7 @@ def main():
     # proxy = "192.168.1.6:30002"
     sys.setrecursionlimit(100000)
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920x1080')
