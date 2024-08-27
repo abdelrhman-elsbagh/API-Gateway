@@ -255,6 +255,7 @@ def update_accounts(driver):
             path = get_current_path(driver)
             ac_id = path.split('/')[-1]
 
+            print("ac_id", ac_id)
             if str(ac_id).replace('/', '') != "" and LOGIN_SUCCESS:
                 print("Return BASE 1")
                 driver.get(f"https://m.hzmk.site/")
@@ -596,6 +597,8 @@ def handle_account(driver, account):
 
 
 def periodic_update(driver):
+    global UPDATE_INTERVAL
+    print("UPDATE_INTERVAL", UPDATE_INTERVAL)
     while True:
         # try:
         #     element = driver.find_element(By.CLASS_NAME, 'live--off-title')
@@ -626,7 +629,7 @@ def main():
     # proxy = "192.168.1.6:30002"
     sys.setrecursionlimit(100000)
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920x1080')
