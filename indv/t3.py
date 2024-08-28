@@ -29,7 +29,7 @@ API_Comments_URL = "https://skeapp.jacadix.net/api/comments"
 
 CHECK_INTERVAL = 10
 
-BASE_LIVE_URL = "https://m.hzmk.site/"
+BASE_LIVE_URL = "https://www.bigo.tv/"
 
 global bigo_comments, bigo_live, LOGIN_SUCCESS, account, main_phone
 bigo_live = ""
@@ -139,7 +139,7 @@ def fetch_config():
         BASE_LIVE_URL = response.json()['base_url']
     else:
         print(f"Failed to fetch accounts: {response.status_code}")
-        BASE_LIVE_URL = "https://m.hzmk.site/"
+        BASE_LIVE_URL = "https://www.bigo.tv/"
 
 
 def get_current_path(driver):
@@ -258,7 +258,7 @@ def update_accounts(driver):
             print("ac_id", ac_id)
             if str(ac_id).replace('/', '') != "" and LOGIN_SUCCESS:
                 print("Return BASE 1")
-                driver.get(f"https://m.hzmk.site/")
+                driver.get(f"https://www.bigo.tv/")
 
             delay(5)
             if LOGIN_SUCCESS:
@@ -269,7 +269,7 @@ def update_accounts(driver):
             if data['live_id'] != "":
                 bigo_live = data['live_id']
                 print(f"bigo_live has been changed to {bigo_live} ...")
-                driver.get(f"https://m.hzmk.site/{bigo_live}")
+                driver.get(f"https://www.bigo.tv/{bigo_live}")
                 time.sleep(3)
                 try:
                     WebDriverWait(driver, 10).until(
@@ -284,7 +284,7 @@ def update_accounts(driver):
 
         if ((new_live_id != bigo_live) or data['live_id'] != bigo_live) and LOGIN_SUCCESS == True:
             print(f"new_live_id has been changed to {new_live_id} ...")
-            driver.get(f"https://m.hzmk.site/{new_live_id}")
+            driver.get(f"https://www.bigo.tv/{new_live_id}")
             time.sleep(3)
             try:
                 WebDriverWait(driver, 10).until(
@@ -302,7 +302,7 @@ def update_accounts(driver):
             ac_id = path.split('/')[-1]
             if str(ac_id).replace('/', '') == "":
                 print("Return BASE 2")
-                driver.get(f"https://m.hzmk.site/")
+                driver.get(f"https://www.bigo.tv/")
             delay(5)
             print("new_live_id is empty and we gonna run update_accounts ...")
             update_accounts(driver)
@@ -454,7 +454,7 @@ def handle_account(driver, account):
 
     if bigo_live != "":
         print(f"Init Open Live {bigo_live}")
-        driver.get(f"https://m.hzmk.site/{bigo_live}")
+        driver.get(f"https://www.bigo.tv/{bigo_live}")
         WebDriverWait(driver, 10).until(
             lambda driver: driver.execute_script('return document.readyState;') == 'complete')
         print(f"End Openninig {bigo_live}")
@@ -657,7 +657,7 @@ def main():
     # driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     print("End Driver")
-    driver.get("https://m.hzmk.site/")
+    driver.get("https://www.bigo.tv/")
     load_cookies(driver, cookies_file_path)
 
     driver.refresh()

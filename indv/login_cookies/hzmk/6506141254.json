@@ -1,0 +1,211 @@
+[
+  {
+    "name": "_ym_uid",
+    "value": "1716102533904417531",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1747638532,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "_ym_d",
+    "value": "1716102533",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1747638532,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "i18n_redirected",
+    "value": "en",
+    "domain": "m.hzmk.site",
+    "path": "/",
+    "expires": 1756253580,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "_gcl_au",
+    "value": "1.1.449896984.1724323630",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1732099630,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_fbp",
+    "value": "fb.1.1724323632770.888420589912431663",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1732493575,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "afUserId",
+    "value": "a3ea8a62-5ec4-428c-b690-db712b0d5d5a-p",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759277583.387043,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "AF_SYNC",
+    "value": "1724323632998",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724928432,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_gid",
+    "value": "GA1.2.2014517725.1724551296",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724803974,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ym_isad",
+    "value": "2",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724740041,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "g_state",
+    "value": "{\"i_l\":0}",
+    "domain": "m.hzmk.site",
+    "path": "/",
+    "expires": 1740223254,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_clck",
+    "value": "gf7vb%7C2%7Cfoo%7C0%7C1695",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1756253276,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ym_visorc",
+    "value": "w",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724719375,
+    "httpOnly": false,
+    "secure": true
+  },
+  {
+    "name": "uniqid",
+    "value": "nH0ZGzKC5uS8KYahoxXHVMc4IQc9ChnoFMZQRTRz8CT47k7aT3mY9eon30OYUXzdzXFu57TC8f0n7pL7xXYYMpcV1VFTuRGZJ7U88m98gZVTNLCaEAzY9kMMxRA59ccPUrjwp5vPJDjh2a4STttULYsyv2bW8kefhZyjGRrUo8kX28tQSz42V9I3GZ2wsGce9r3r2Oi7L3VYaMVTNrFyoEHO3gIRjmN8KR1JX9tzgw7N0BS86xNRj8RrNZsrdtKueCHXOPV5rm5RT4cnVXmC",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "tid",
+    "value": "nH0ZGzKC5uS8KYahoxXHVMc4IQc9ChnoFMZQRTRz8CT47k7aT3mY9eon30OYUXzdzXFu57TC8f0n7pL7xXYYMpcV1VFTuRGZJ7U88m98gZVTNLCaEAzY9kMMxRA59ccPUrjwp5vPJDjh2a4STttULYsyv2bW8kefhZyjGRrUo8kX28tQSz42V9I3GZ2wsGce9r3r2Oi7L3VYaMVTNrFyoEHO3gIRjmN8KR1JX9tzgw7N0BS86xNRj8RrNZsrdtKueCHXOPV5rm5RT4cnVXmC",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "_ga_GZZDWRLKFR",
+    "value": "GS1.1.1724717280.11.1.1724717574.37.0.0",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759277574.752012,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_clsk",
+    "value": "1f03fz5%7C1724717576027%7C15%7C0%7Co.clarity.ms%2Fcollect",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1724803976,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "nick_name",
+    "value": "%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "data5",
+    "value": "http%3A%2F%2Fesx.bigo.sg%2Flive%2Fg1%2FM00%2F05%2F71%2FnXfpBFlKHcSIEifkAAAVcvRcLE8AAIfoAKuzhYAABWK788.jpg",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "user_name",
+    "value": "1781766390",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "yyuid",
+    "value": "262805880",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "head_icon_url",
+    "value": "http%3A%2F%2Fesx.bigo.sg%2Flive%2Fg1%2FM00%2F05%2F71%2FnXfpBFlKHcSIEifkAAAVcvRcLE8AAIfoAKuzhYAABWK788.jpg",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "_ga_2S7YW668S5",
+    "value": "GS1.1.1724717281.11.1.1724717582.30.0.0",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759277582.265232,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ga",
+    "value": "GA1.1.606463825.1724323631",
+    "domain": ".hzmk.site",
+    "path": "/",
+    "expires": 1759277582.265848,
+    "httpOnly": false,
+    "secure": false
+  }
+]
