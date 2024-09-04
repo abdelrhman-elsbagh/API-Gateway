@@ -9,4 +9,8 @@ while true; do
 
     echo "t3.py started. Waiting for 12 hours before restarting..."
     sleep 12h  # Wait for 12 hours
+
+    # After 12 hours, delete the log file
+    echo "Deleting log file..."
+    rm -f restart_script.log
 done
