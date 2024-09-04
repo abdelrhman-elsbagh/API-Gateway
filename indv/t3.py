@@ -687,7 +687,7 @@ def main():
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGTERM, sigterm_handler)
+    # signal.signal(signal.SIGTERM, sigterm_handler)
     main()
     try:
         signal.pause()
