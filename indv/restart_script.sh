@@ -8,7 +8,7 @@ while true; do
     nohup python3 t3.py > t3_output.log 2>&1 &  # Run t3.py independently using nohup
 
     echo "t3.py started. Waiting for 20 hours before restarting..."
-    sleep 5m  # Wait for 20 hours
+    sleep 20h  # Wait for 20 hours
 
     # After 20 hours, delete the log file
     echo "Deleting log file..."
