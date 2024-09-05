@@ -2,7 +2,6 @@
 
 while true; do
     # Kill any running instance of t3.py
-    pkill -f restart_script.sh
     pkill -f t3.py
 
     echo "Starting t3.py at $(date)"
