@@ -418,100 +418,100 @@ def remove_non_bmp_characters(text):
 
 # I use it if there is cookie file and loaded & login success
 def update_accounts(driver):
-    # try:
-    global LOGIN_SUCCESS, UPDATE_INTERVAL, bigo_live, bigo_comments, account
-    print("update_accounts function")
-    print("LOGIN_SUCCESS:", LOGIN_SUCCESS)
-
-    # Fetch data using your get_live_by_phone function
-    data = get_live_by_phone(main_phone)
-    print("get the account now", data)
-    bigo_comments = update_comments()
-    print("bigo_comments", bigo_comments)
-
     try:
+        global LOGIN_SUCCESS, UPDATE_INTERVAL, bigo_live, bigo_comments, account
+        print("update_accounts function")
+        print("LOGIN_SUCCESS:", LOGIN_SUCCESS)
+
+        # Fetch data using your get_live_by_phone function
+        data = get_live_by_phone(main_phone)
+        print("get the account now", data)
+        bigo_comments = update_comments()
+        print("bigo_comments", bigo_comments)
+
+        try:
+            # Update interval for comments
+            UPDATE_INTERVAL = data['comment_time']
+        except Exception as e:
+            print(e)
+
+        # Handle case where phone data is not found or 'account' is missing
+        if 'success' in data and not data['success']:
+            print(f"Phone {main_phone} Not Found")
+            print(f"Local Account is {account}")
+            bigo_live = []  # Reset bigo_live to an empty list
+            account["live_id"] = []
+
+            # Close all tabs except one (keeping browser open)
+            close_all_tabs_except_one(driver)
+
+            return account
+
+        # Check if 'account' and 'live_id' exist in the response data
+        if 'account' in data and 'live_id' in data['account']:
+            # Ensure live_id is a list
+            new_live_ids = data['account']['live_id'] if isinstance(data['account']['live_id'], list) else [
+                data['account']['live_id']]
+        else:
+            print("No live_id found in data, closing all tabs except one.")
+            bigo_live = []  # Reset the live_id list
+
+            # Close all tabs except one (keeping browser open)
+            close_all_tabs_except_one(driver)
+
+            return account
+
+        # If no live_id is being tracked currently
+        if not new_live_ids:
+            print("No live_id to track, closing all tabs except one.")
+            bigo_live = []  # Clear out the current live_id list
+
+            # Close all tabs except one (keeping browser open)
+            close_all_tabs_except_one(driver)
+
+            return account
+
+        # Manage tabs for the new live_ids
+        manage_tabs(driver, new_live_ids)
+
+        # Post comments in the appropriate tabs
+        if LOGIN_SUCCESS and bigo_live and bigo_comments:
+            for i, handle in enumerate(driver.window_handles):  # Iterate over open tabs
+                driver.switch_to.window(handle)
+                current_url = driver.current_url
+                time.sleep(5)  # Add a delay when switching between tabs
+
+                # Extract live_id from the current tab's URL
+                current_live_id = current_url.split('/')[-1]
+
+                if current_live_id in bigo_live:
+                    # Post the comment corresponding to the current live_id
+                    random_comment = random.choice(bigo_comments)
+                    post_comment_if_live_id_matches(driver, current_live_id, random_comment)
+
+        # Update global live_id tracker
+        bigo_live = new_live_ids  # Ensure it's now a list of live_ids
+        print(f"Tracking the following live_ids: {bigo_live}")
+
+        # Update the account information
+        account = {
+            'phone': data['account']['phone'],
+            'password': data['account']['password'],
+            'country': data['account']['country'],
+            'live_id': new_live_ids,  # Ensure it's now a list of live_ids
+            'comment_time': data['comment_time'],
+        }
+
         # Update interval for comments
         UPDATE_INTERVAL = data['comment_time']
+
+        print("Account has been updated:", account)
+
+        return account
     except Exception as e:
-        print(e)
-
-    # Handle case where phone data is not found or 'account' is missing
-    if 'success' in data and not data['success']:
-        print(f"Phone {main_phone} Not Found")
-        print(f"Local Account is {account}")
-        bigo_live = []  # Reset bigo_live to an empty list
-        account["live_id"] = []
-
-        # Close all tabs except one (keeping browser open)
-        close_all_tabs_except_one(driver)
-
-        return account
-
-    # Check if 'account' and 'live_id' exist in the response data
-    if 'account' in data and 'live_id' in data['account']:
-        # Ensure live_id is a list
-        new_live_ids = data['account']['live_id'] if isinstance(data['account']['live_id'], list) else [
-            data['account']['live_id']]
-    else:
-        print("No live_id found in data, closing all tabs except one.")
-        bigo_live = []  # Reset the live_id list
-
-        # Close all tabs except one (keeping browser open)
-        close_all_tabs_except_one(driver)
-
-        return account
-
-    # If no live_id is being tracked currently
-    if not new_live_ids:
-        print("No live_id to track, closing all tabs except one.")
-        bigo_live = []  # Clear out the current live_id list
-
-        # Close all tabs except one (keeping browser open)
-        close_all_tabs_except_one(driver)
-
-        return account
-
-    # Manage tabs for the new live_ids
-    manage_tabs(driver, new_live_ids)
-
-    # Post comments in the appropriate tabs
-    if LOGIN_SUCCESS and bigo_live and bigo_comments:
-        for i, handle in enumerate(driver.window_handles):  # Iterate over open tabs
-            driver.switch_to.window(handle)
-            current_url = driver.current_url
-            time.sleep(5)  # Add a delay when switching between tabs
-
-            # Extract live_id from the current tab's URL
-            current_live_id = current_url.split('/')[-1]
-
-            if current_live_id in bigo_live:
-                # Post the comment corresponding to the current live_id
-                random_comment = random.choice(bigo_comments)
-                post_comment_if_live_id_matches(driver, current_live_id, random_comment)
-
-    # Update global live_id tracker
-    bigo_live = new_live_ids  # Ensure it's now a list of live_ids
-    print(f"Tracking the following live_ids: {bigo_live}")
-
-    # Update the account information
-    account = {
-        'phone': data['account']['phone'],
-        'password': data['account']['password'],
-        'country': data['account']['country'],
-        'live_id': new_live_ids,  # Ensure it's now a list of live_ids
-        'comment_time': data['comment_time'],
-    }
-
-    # Update interval for comments
-    UPDATE_INTERVAL = data['comment_time']
-
-    print("Account has been updated:", account)
-
-    return account
-    # except Exception as e:
-    #     print('update_accounts exception ' + str(e))
-    #     time.sleep(30)
-    #     update_accounts(driver)
+        print('update_accounts exception ' + str(e))
+        time.sleep(30)
+        update_accounts(driver)
 
 
 def update_comments():
