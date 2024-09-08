@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 import requests
 from selenium import webdriver
-from selenium.common import TimeoutException
+from selenium.common import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.service import Service
@@ -37,7 +37,7 @@ bigo_comments = []
 
 LOGIN_SUCCESS = False
 
-UPDATE_INTERVAL = 30  # Update every 60 seconds
+UPDATE_INTERVAL = 1  # Update every 60 seconds
 UPDATE_20_INTERVAL = 6  # Update every 20 seconds
 
 json_file_path = os.path.join(os.getcwd(), 'account_data.json')
@@ -50,7 +50,7 @@ def get_account():
     if not os.path.exists('account_data.json'):
         # Step 1: Call the endpoint
         url = f"{BASE_URL}/available-account"
-        response = requests.get(url)
+        response = requests.get(url, timeout=30)
 
         # Step 2: Check if the response is successful
         print("Fetch Account is ", response.json())
@@ -134,7 +134,7 @@ print("Account Details:", account)
 
 def fetch_config():
     global BASE_LIVE_URL
-    response = requests.get(f"{BASE_URL}/config")
+    response = requests.get(f"{BASE_URL}/config", timeout=30)
     if response.status_code == 200:
         BASE_LIVE_URL = response.json()['base_url']
     else:
@@ -184,7 +184,7 @@ def post_comment(driver, comments):
 
 
 def fetch_comments(api_url):
-    response = requests.get(api_url)
+    response = requests.get(api_url, timeout=30)
     if response.status_code == 200:
         return response.json()
     else:
@@ -223,9 +223,8 @@ def update_in_use_status(phone_number, in_use):
 
 
 def get_live_by_phone(phone):
-    response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
     try:
-        response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone})
+        response = requests.get(f"{BASE_URL}/live-phone", params={'phone': phone}, timeout=30)
         if response.status_code == 200:
             if response.text:
                 return response.json()
@@ -238,111 +237,273 @@ def get_live_by_phone(phone):
         return {'success': False, 'message': str(e)}
 
 
-def update_accounts(driver):
-    try:
-        global LOGIN_SUCCESS, UPDATE_INTERVAL, bigo_live
-        print("update_accounts function")
-        print("LOGIN_SUCCESS", LOGIN_SUCCESS)
-        data = get_live_by_phone(main_phone)
-
-        if 'success' in data and data['success'] == False:
-            global account
-            print(f"Phone {main_phone} Not Found")
-            print(f"Local Account is {account}")
-            bigo_live = ""
-            account["live_id"] = ""
-
-            path = get_current_path(driver)
-            ac_id = path.split('/')[-1]
-
-            print("ac_id", ac_id)
-            if str(ac_id).replace('/', '') != "" and LOGIN_SUCCESS:
-                print("Return BASE 1")
-                driver.get(f"https://www.bigo.tv/")
-
+def post_comment_if_live_id_matches(driver, live_id, comment):
+    """
+    Check the current tab's URL, and if it matches the given live_id, post the comment.
+    """
+    current_url = driver.current_url
+    if live_id in current_url:  # Check if live_id is part of the URL
+        print(f"Found live_id {live_id} in URL, posting comment...")
+        textarea_locator = (By.CSS_SELECTOR, "textarea")
+        try:
+            # Wait for the textarea to be present and visible
+            textarea = WebDriverWait(driver, 10).until(EC.visibility_of_element_located(textarea_locator))
+            textarea.send_keys(comment)
+            time.sleep(1)
+            textarea.send_keys(Keys.ENTER)
+            print(f"Comment '{comment}' posted successfully.")
             delay(5)
-            if LOGIN_SUCCESS:
-                update_accounts(driver)
-            return account
+        except TimeoutException:
+            print(f"Could not post comment for {live_id}. Textarea not found.")
+    else:
+        print(f"live_id {live_id} not found in current URL. Skipping.")
 
-        if bigo_live == "":
-            if data['live_id'] != "":
-                bigo_live = data['live_id']
-                print(f"bigo_live has been changed to {bigo_live} ...")
-                driver.get(f"https://www.bigo.tv/{bigo_live}")
-                time.sleep(3)
-                try:
-                    WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
-                    )
 
-                    print(f"Page is loaded and send_btn element is present.")
-                except TimeoutException:
-                    print("Loading took too much time!")
+def manage_tabs_and_post_comments(driver, live_ids, comments):
+    """
+    Iterate over all tabs, check if the live_id exists in the current live_ids list.
+    If it exists, write the comment; otherwise, close the tab.
+    """
+    original_tab = driver.window_handles[0]  # Keep the first/origin tab open (https://www.bigo.tv/)
 
-        new_live_id = data['live_id']
+    # Iterate over each tab
+    for i, handle in enumerate(driver.window_handles):
+        driver.switch_to.window(handle)
+        current_url = driver.current_url
 
-        if ((new_live_id != bigo_live) or data['live_id'] != bigo_live) and LOGIN_SUCCESS == True:
-            print(f"new_live_id has been changed to {new_live_id} ...")
-            driver.get(f"https://www.bigo.tv/{new_live_id}")
-            time.sleep(3)
+        if "bigo.tv" in current_url:
+            if current_url == "https://www.bigo.tv/":
+                continue  # Skip the origin tab
+
+            # Extract live_id from the URL (if present)
+            current_live_id = current_url.split('/')[-1]
+
+            if current_live_id in live_ids:
+                # Post a comment if the live_id exists in the current list
+                if i < len(comments):  # Ensure there's a comment for this live_id
+                    post_comment_if_live_id_matches(driver, current_live_id, comments[i])
+            else:
+                # If live_id is not in the current list, close the tab
+                print(f"Closing tab for live_id {current_live_id} as it's no longer in the live_id list.")
+                driver.close()
+
+    # After managing all tabs, switch back to the original tab
+    driver.switch_to.window(original_tab)
+
+
+def close_all_tabs_except_origin(driver, origin_url="https://www.bigo.tv/"):
+    """
+    Closes all tabs except for the origin tab (https://www.bigo.tv/).
+    """
+    original_tab = driver.window_handles[0]  # Keep the first/origin tab open
+
+    # Iterate over each tab except the first one
+    for handle in driver.window_handles[1:]:
+        driver.switch_to.window(handle)
+        current_url = driver.current_url
+
+        if current_url != origin_url:
+            print(f"Closing tab with URL: {current_url}")
+            driver.close()
+
+    # Switch back to the original tab
+    driver.switch_to.window(original_tab)
+    driver.get(origin_url)
+
+
+def close_all_tabs_except_one(driver):
+    """
+    Closes all tabs except one, keeping the browser open.
+    If the remaining tab's URL is not 'https://www.bigo.tv/', redirect it to that page.
+    """
+    original_tab = driver.window_handles[0]  # Get the first open tab
+
+    # Close all other tabs except the first one
+    for handle in driver.window_handles[1:]:
+        driver.switch_to.window(handle)
+        print(f"Closing tab with URL: {driver.current_url}")
+        driver.close()
+
+    # Switch back to the original tab
+    driver.switch_to.window(original_tab)
+    current_url = driver.current_url
+
+    # If the list of live_ids is empty and the current URL is not 'https://www.bigo.tv/', redirect
+    if current_url != "https://www.bigo.tv/":
+        print("Redirecting the remaining tab to https://www.bigo.tv/")
+        driver.get("https://www.bigo.tv/")
+
+def manage_tabs(driver, new_live_ids):
+    """
+    Manage existing tabs. Use the first tab for the first live_id, open new tabs for remaining live_ids,
+    and close tabs for live_ids no longer in the list.
+    Implement retry mechanism to handle network issues.
+    """
+    open_live_ids = []
+    origin_handle = driver.window_handles[0]  # Save the first tab's handle
+
+    # Retry mechanism for network issues
+    def load_url_with_retry(url, retries=3, delay=5):
+        attempt = 0
+        while attempt < retries:
             try:
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, 'send_btn'))
-                )
+                driver.get(url)
+                print(f"Successfully loaded {url}")
+                return True
+            except WebDriverException as e:
+                print(f"Error loading {url}: {e}")
+                if 'ERR_CONNECTION_RESET' in str(e):
+                    attempt += 1
+                    print(f"Retrying ({attempt}/{retries}) in {delay} seconds...")
+                    time.sleep(delay)  # Wait before retrying
+                else:
+                    raise  # If the error is not network-related, raise it
+        return False  # If all retries fail
 
-                print(f"Page is loaded and send_btn element is present.")
-            except TimeoutException:
-                print("Loading took too much time!")
+    # Use the first live_id for the original tab
+    first_live_id = new_live_ids[0]  # First live_id
+    driver.switch_to.window(origin_handle)
 
-        bigo_live = new_live_id
+    # Get the current URL of the original tab
+    current_url = driver.current_url
 
-        if new_live_id == "" and LOGIN_SUCCESS:
-            path = get_current_path(driver)
-            ac_id = path.split('/')[-1]
-            if str(ac_id).replace('/', '') == "":
-                print("Return BASE 2")
-                driver.get(f"https://www.bigo.tv/")
-            delay(5)
-            print("new_live_id is empty and we gonna run update_accounts ...")
-            update_accounts(driver)
-            return "Account not found"
+    # Only load the live_id if it's not already in the current tab
+    if not current_url.endswith(f"/{first_live_id}"):
+        success = load_url_with_retry(f"https://www.bigo.tv/{first_live_id}")
+        if not success:
+            print(f"Failed to load {first_live_id} after multiple attempts, skipping.")
+        else:
+            open_live_ids.append(first_live_id)
+    else:
+        print(f"Original tab already points to live_id {first_live_id}, skipping redirect.")
+        open_live_ids.append(first_live_id)
 
+    # Manage existing tabs and open new ones for the remaining live_ids
+    for handle in driver.window_handles[1:]:  # Skip the first tab
+        driver.switch_to.window(handle)
+        current_url = driver.current_url
+        time.sleep(5)  # Add a delay between tab switches
+
+        # Extract live_id from URL
+        current_live_id = current_url.split('/')[-1]
+
+        if current_live_id in new_live_ids:
+            open_live_ids.append(current_live_id)  # Keep tabs that are still relevant
+        else:
+            print(f"Closing tab for live_id {current_live_id}")
+            driver.close()  # Close tabs that no longer have relevant live_ids
+
+    # Open new tabs for live_ids that aren't already open
+    for live_id in new_live_ids[1:]:
+        if live_id not in open_live_ids:
+            print(f"Opening new tab for live_id {live_id}")
+            driver.execute_script("window.open('');")
+            driver.switch_to.window(driver.window_handles[-1])
+            success = load_url_with_retry(f"https://www.bigo.tv/{live_id}")
+            if not success:
+                print(f"Failed to load {live_id} after multiple attempts, skipping.")
+            else:
+                open_live_ids.append(live_id)
+
+    # Switch back to the first tab after managing all tabs
+    driver.switch_to.window(origin_handle)
+
+# I use it if there is cookie file and loaded & login success
+def update_accounts(driver):
+    # try:
+    global LOGIN_SUCCESS, UPDATE_INTERVAL, bigo_live, bigo_comments, account
+    print("update_accounts function")
+    print("LOGIN_SUCCESS:", LOGIN_SUCCESS)
+
+    # Fetch data using your get_live_by_phone function
+    data = get_live_by_phone(main_phone)
+    print("get the account now", data)
+    bigo_comments = update_comments()
+    print("bigo_comments", bigo_comments)
+
+    try:
+        # Update interval for comments
         UPDATE_INTERVAL = data['comment_time']
+    except Exception as e:
+        print(e)
 
-        account = {
-            'phone': data['phone'],
-            'password': data['password'],
-            'country': data['country'],
-            'live_id': data['live_id'],
-            'comment_time': data['comment_time'],
-        }
+    # Handle case where phone data is not found or 'account' is missing
+    if 'success' in data and not data['success']:
+        print(f"Phone {main_phone} Not Found")
+        print(f"Local Account is {account}")
+        bigo_live = []  # Reset bigo_live to an empty list
+        account["live_id"] = []
 
-        print("Account Has Updated", account)
-
-        if bigo_live != "":
-            global bigo_comments
-
-            print("Bigo Current ID :", bigo_live)
-
-            if bigo_comments is not None:
-                if len(bigo_comments) < 1:
-                    print("Bigo Update Comments :")
-                    bigo_comments = update_comments()
-
-            print("bigo_comments-update_accounts", bigo_comments)
-
-            if bigo_comments is not None and LOGIN_SUCCESS == True and bigo_live != "":
-                if len(bigo_comments) > 0:
-                    print("Bigo Start Re Comment :")
-                    post_comment(driver, bigo_comments)
+        # Close all tabs except one (keeping browser open)
+        close_all_tabs_except_one(driver)
 
         return account
-    except Exception as e:
-        print('update_accounts exception')
-        print(e)
-        time.sleep(30)
-        update_accounts(driver)
+
+    # Check if 'account' and 'live_id' exist in the response data
+    if 'account' in data and 'live_id' in data['account']:
+        # Ensure live_id is a list
+        new_live_ids = data['account']['live_id'] if isinstance(data['account']['live_id'], list) else [
+            data['account']['live_id']]
+    else:
+        print("No live_id found in data, closing all tabs except one.")
+        bigo_live = []  # Reset the live_id list
+
+        # Close all tabs except one (keeping browser open)
+        close_all_tabs_except_one(driver)
+
+        return account
+
+    # If no live_id is being tracked currently
+    if not new_live_ids:
+        print("No live_id to track, closing all tabs except one.")
+        bigo_live = []  # Clear out the current live_id list
+
+        # Close all tabs except one (keeping browser open)
+        close_all_tabs_except_one(driver)
+
+        return account
+
+    # Manage tabs for the new live_ids
+    manage_tabs(driver, new_live_ids)
+
+    # Post comments in the appropriate tabs
+    if LOGIN_SUCCESS and bigo_live and bigo_comments:
+        for i, handle in enumerate(driver.window_handles):  # Iterate over open tabs
+            driver.switch_to.window(handle)
+            current_url = driver.current_url
+            time.sleep(5)  # Add a delay when switching between tabs
+
+            # Extract live_id from the current tab's URL
+            current_live_id = current_url.split('/')[-1]
+
+            if current_live_id in bigo_live:
+                # Post the comment corresponding to the current live_id
+                random_comment = random.choice(bigo_comments)
+                post_comment_if_live_id_matches(driver, current_live_id, random_comment)
+
+    # Update global live_id tracker
+    bigo_live = new_live_ids  # Ensure it's now a list of live_ids
+    print(f"Tracking the following live_ids: {bigo_live}")
+
+    # Update the account information
+    account = {
+        'phone': data['account']['phone'],
+        'password': data['account']['password'],
+        'country': data['account']['country'],
+        'live_id': new_live_ids,  # Ensure it's now a list of live_ids
+        'comment_time': data['comment_time'],
+    }
+
+    # Update interval for comments
+    UPDATE_INTERVAL = data['comment_time']
+
+    print("Account has been updated:", account)
+
+    return account
+    # except Exception as e:
+    #     print('update_accounts exception ' + str(e))
+    #     time.sleep(30)
+    #     update_accounts(driver)
 
 
 def update_comments():
@@ -613,7 +774,7 @@ def periodic_update(driver):
 def periodic_put_comment(driver, bigo_comments):
     while True:
         updated_comment = post_comment(driver, bigo_comments)
-        print('updated_account', updated_comment)
+        print('updated_comment', updated_comment)
         # print('UPDATE_20_INTERVAL', UPDATE_20_INTERVAL)
         # time.sleep(UPDATE_20_INTERVAL * 60)
 
@@ -629,7 +790,7 @@ def main():
     # proxy = "192.168.1.6:30002"
     sys.setrecursionlimit(100000)
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920x1080')
@@ -692,6 +853,6 @@ if __name__ == "__main__":
     try:
         signal.pause()
     except Exception as e:
-        update_in_use_status(main_phone, False)
+        # update_in_use_status(main_phone, False)
         input("press any key to quit")
         exit(1)
