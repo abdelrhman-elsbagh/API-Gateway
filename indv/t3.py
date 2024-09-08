@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import signal
 import sys
 import threading
@@ -408,6 +409,13 @@ def manage_tabs(driver, new_live_ids):
     # Switch back to the first tab after managing all tabs
     driver.switch_to.window(origin_handle)
 
+def remove_non_bmp_characters(text):
+    """
+    Removes any characters that are outside the Basic Multilingual Plane (BMP).
+    """
+    # Use a regex to remove characters outside the BMP range
+    return re.sub(r'[^\u0000-\uFFFF]', '', text)
+
 # I use it if there is cookie file and loaded & login success
 def update_accounts(driver):
     # try:
@@ -512,6 +520,8 @@ def update_comments():
     comments_data = fetch_comments(API_Comments_URL)
     for comment in comments_data:
         bigo_comments.append(comment['comment'])
+
+    bigo_comments = [remove_non_bmp_characters(comment) for comment in bigo_comments]
     return bigo_comments
 
 
