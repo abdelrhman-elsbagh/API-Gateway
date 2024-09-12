@@ -4,7 +4,7 @@
     "value": "en",
     "domain": "www.bigo.tv",
     "path": "/",
-    "expires": 1756978277,
+    "expires": 1757711242.024097,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
@@ -15,15 +15,6 @@
     "domain": ".bigo.tv",
     "path": "/",
     "expires": 1733217622,
-    "httpOnly": false,
-    "secure": false
-  },
-  {
-    "name": "_gid",
-    "value": "GA1.2.481420713.1725441623",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1725528672,
     "httpOnly": false,
     "secure": false
   },
@@ -50,131 +41,68 @@
     "value": "fb.1.1725441623290.15121640797997680",
     "domain": ".bigo.tv",
     "path": "/",
-    "expires": 1733218272,
+    "expires": 1733951243,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
-  },
-  {
-    "name": "_ym_isad",
-    "value": "2",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1725513623,
-    "httpOnly": false,
-    "secure": true
-  },
-  {
-    "name": "_ym_visorc",
-    "value": "b",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1725444072,
-    "httpOnly": false,
-    "secure": true
-  },
-  {
-    "name": "_clck",
-    "value": "11qjp3h%7C2%7Cfow%7C0%7C1708",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1756977623,
-    "httpOnly": false,
-    "secure": false
   },
   {
     "name": "afUserId",
     "value": "942e6370-209b-4204-9040-f78ec456b33b-p",
     "domain": ".bigo.tv",
     "path": "/",
-    "expires": 1760002277.974123,
+    "expires": 1760735234.106347,
     "httpOnly": false,
     "secure": false
+  },
+  {
+    "name": "_gid",
+    "value": "GA1.2.1324212737.1726152980",
+    "domain": ".bigo.tv",
+    "path": "/",
+    "expires": 1726261643,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_clck",
+    "value": "11qjp3h%7C2%7Cfp4%7C0%7C1708",
+    "domain": ".bigo.tv",
+    "path": "/",
+    "expires": 1757688980,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ym_isad",
+    "value": "2",
+    "domain": ".bigo.tv",
+    "path": "/",
+    "expires": 1726224980,
+    "httpOnly": false,
+    "secure": true
   },
   {
     "name": "AF_SYNC",
-    "value": "1725441623851",
+    "value": "1726152981203",
     "domain": ".bigo.tv",
     "path": "/",
-    "expires": 1726046423,
+    "expires": 1726757781,
     "httpOnly": false,
     "secure": false
   },
   {
-    "name": "uniqid",
-    "value": "c9HTFG4OLOvAuTJbG39xg5b7kXwEiq3bTocYY10y0VsaSJzVyuh3nviqbtdvw9D1z84xnct1P0Fk9Rfr1UrQ7ySV21utVhzDkFRUWd9JV5ojJrT6fLFGM66TpK9IP3dC4J8sjiVCWz9h41cTTc8fW9XqIb6mOFezyYayI1JvhiQlJ7uBTSCwJkyceyQyJeB8jhknyeqak8aZi5Yp7XbON8Qs88oYl808bvV8u5iWZSuEz8qW1VkLAvfUXDOinYfP4EYZh48vvLnKJLO12LfB",
+    "name": "_ym_visorc",
+    "value": "b",
     "domain": ".bigo.tv",
     "path": "/",
-    "expires": -1,
-    "httpOnly": true,
-    "secure": true
-  },
-  {
-    "name": "tid",
-    "value": "c9HTFG4OLOvAuTJbG39xg5b7kXwEiq3bTocYY10y0VsaSJzVyuh3nviqbtdvw9D1z84xnct1P0Fk9Rfr1UrQ7ySV21utVhzDkFRUWd9JV5ojJrT6fLFGM66TpK9IP3dC4J8sjiVCWz9h41cTTc8fW9XqIb6mOFezyYayI1JvhiQlJ7uBTSCwJkyceyQyJeB8jhknyeqak8aZi5Yp7XbON8Qs88oYl808bvV8u5iWZSuEz8qW1VkLAvfUXDOinYfP4EYZh48vvLnKJLO12LfB",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": -1,
-    "httpOnly": true,
-    "secure": true
-  },
-  {
-    "name": "_ga_GZZDWRLKFR",
-    "value": "GS1.1.1725441622.1.1.1725442272.43.0.0",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1760002272.130373,
+    "expires": 1726177043,
     "httpOnly": false,
-    "secure": false
-  },
-  {
-    "name": "_gat_UA-167434529-1",
-    "value": "1",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1725442332,
-    "httpOnly": false,
-    "secure": false
-  },
-  {
-    "name": "_clsk",
-    "value": "xc4hdj%7C1725442272633%7C26%7C0%7Cu.clarity.ms%2Fcollect",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1725528672,
-    "httpOnly": false,
-    "secure": false
-  },
-  {
-    "name": "_ga_2S7YW668S5",
-    "value": "GS1.1.1725441628.1.1.1725442277.38.0.0",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1760002277.670062,
-    "httpOnly": false,
-    "secure": false
-  },
-  {
-    "name": "_ga",
-    "value": "GA1.1.1215155869.1725441623",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": 1760002277.67032,
-    "httpOnly": false,
-    "secure": false
-  },
-  {
-    "name": "nick_name",
-    "value": "%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB%E2%B8%BB",
-    "domain": ".bigo.tv",
-    "path": "/",
-    "expires": -1,
-    "httpOnly": true,
     "secure": true
   },
   {
     "name": "data5",
-    "value": "http%3A%2F%2Fesx.bigo.sg%2Feu_live%2F2u4%2F1uH3hI.jpg",
+    "value": "http%3A%2F%2Fesx.bigo.sg%2Flive%2Fg1%2FM02%2F03%2FC6%2FnXfpBFjm1YuILiJ7AABAqCi1uI0AAF5WQMWvKIAAEDA694.jpg",
     "domain": ".bigo.tv",
     "path": "/",
     "expires": -1,
@@ -183,7 +111,7 @@
   },
   {
     "name": "user_name",
-    "value": "1659141957",
+    "value": "469481960",
     "domain": ".bigo.tv",
     "path": "/",
     "expires": -1,
@@ -192,7 +120,7 @@
   },
   {
     "name": "yyuid",
-    "value": "151028138",
+    "value": "682366545",
     "domain": ".bigo.tv",
     "path": "/",
     "expires": -1,
@@ -200,12 +128,57 @@
     "secure": true
   },
   {
-    "name": "head_icon_url",
-    "value": "http%3A%2F%2Fesx.bigo.sg%2Feu_live%2F2u4%2F1uH3hI.jpg",
+    "name": "uniqid",
+    "value": "BegkZrUX25kPV9nF93ml1sYGlQafdCxlyZp8S6yiHg5bG9nlI8SspekdQHm4DhjAnZTEX9xvpQICKBRZ9Gqgad9dtoCLKrknUjdP9o72dJqF4M8GbUSJWce9nJEOUZdrQhmGTUa9yVwg99Hf3Ag3zA39NVJhje822Yf0hJJhTX7Hk7KIlfBPR98GHBkCRzdZSinq5o2QbI2fMkw50rWO1LILyIOZMHuwCDimwtfv43OKIGyzKtygLjLGuWEqCELrvBhEuMNn9FmywwVfMM9B",
     "domain": ".bigo.tv",
     "path": "/",
     "expires": -1,
     "httpOnly": true,
     "secure": true
+  },
+  {
+    "name": "tid",
+    "value": "BegkZrUX25kPV9nF93ml1sYGlQafdCxlyZp8S6yiHg5bG9nlI8SspekdQHm4DhjAnZTEX9xvpQICKBRZ9Gqgad9dtoCLKrknUjdP9o72dJqF4M8GbUSJWce9nJEOUZdrQhmGTUa9yVwg99Hf3Ag3zA39NVJhje822Yf0hJJhTX7Hk7KIlfBPR98GHBkCRzdZSinq5o2QbI2fMkw50rWO1LILyIOZMHuwCDimwtfv43OKIGyzKtygLjLGuWEqCELrvBhEuMNn9FmywwVfMM9B",
+    "domain": ".bigo.tv",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true
+  },
+  {
+    "name": "_ga_2S7YW668S5",
+    "value": "GS1.1.1726170933.8.1.1726175242.1.0.0",
+    "domain": ".bigo.tv",
+    "path": "/",
+    "expires": 1760735242.074335,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ga_GZZDWRLKFR",
+    "value": "GS1.1.1726170901.8.1.1726175243.59.0.0",
+    "domain": ".bigo.tv",
+    "path": "/",
+    "expires": 1760735243.427298,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_ga",
+    "value": "GA1.2.1215155869.1725441623",
+    "domain": ".bigo.tv",
+    "path": "/",
+    "expires": 1760735243.434391,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "_clsk",
+    "value": "tqbrk3%7C1726175243889%7C117%7C0%7Cv.clarity.ms%2Fcollect",
+    "domain": ".bigo.tv",
+    "path": "/",
+    "expires": 1726261643,
+    "httpOnly": false,
+    "secure": false
   }
 ]

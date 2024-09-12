@@ -157,6 +157,7 @@ def wait_for_elementv2(driver, locator, timeout=10):
 
 
 def post_comment(driver, comments):
+    global main_phone
     try:
         time.sleep(2)
         textarea_locator = (By.CSS_SELECTOR, "textarea")
@@ -178,6 +179,8 @@ def post_comment(driver, comments):
         time.sleep(2)
         print("Current Comment: ", random_comment)
         textarea.send_keys(Keys.ENTER)
+
+        increment_comment_num(main_phone)
 
         print("end write comment")
     except Exception as e:
@@ -254,6 +257,7 @@ def post_comment_if_live_id_matches(driver, live_id, comment):
             textarea.send_keys(Keys.ENTER)
             print(f"Comment '{comment}' posted successfully.")
             delay(5)
+            increment_comment_num(main_phone)
         except TimeoutException:
             print(f"Could not post comment for {live_id}. Textarea not found.")
     else:
@@ -767,6 +771,37 @@ def handle_account(driver, account):
     update_accounts(driver)
 
 
+def increment_comment_num(phone_number):
+    # Define the URL for the API endpoint
+    url = f"{BASE_URL}/increment-comment-num"
+
+    # Define the data to be sent in the POST request
+    data = {
+        'phone': phone_number
+    }
+    try:
+        # Send a POST request to the API
+        response = requests.post(url, data=data, timeout=30)
+    except requests.RequestException as e:
+        # Print an error message if there was an exception during the request
+        print(f"An error occurred: {e}")
+
+
+def increment_run_time(phone_number):
+    # Define the URL for the API endpoint
+    url = f"{BASE_URL}/increment-run-time"
+
+    # Define the data to be sent in the POST request
+    data = {
+        'phone': phone_number
+    }
+    try:
+        # Send a POST request to the API
+        response = requests.post(url, data=data, timeout=30)
+    except requests.RequestException as e:
+        # Print an error message if there was an exception during the request
+        print(f"An error occurred: {e}")
+
 def periodic_update(driver):
     global UPDATE_INTERVAL
     print("UPDATE_INTERVAL", UPDATE_INTERVAL)
@@ -795,6 +830,8 @@ def sigterm_handler(signum, frame):
 
 
 def main():
+    global bigo_comments, main_phone, account
+    increment_run_time(main_phone)
     get_account()
 
     # proxy = "192.168.1.6:30002"
@@ -823,7 +860,6 @@ def main():
     # options.add_argument('--no-sandbox')
 
     # try:
-    global bigo_comments, main_phone, account
     print("Init Driver")
     # driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
