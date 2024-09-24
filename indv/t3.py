@@ -405,6 +405,7 @@ def manage_tabs(driver, new_live_ids):
             driver.execute_script("window.open('');")
             driver.switch_to.window(driver.window_handles[-1])
             success = load_url_with_retry(f"https://www.bigo.tv/{live_id}")
+
             if not success:
                 print(f"Failed to load {live_id} after multiple attempts, skipping.")
             else:
@@ -487,6 +488,15 @@ def update_accounts(driver):
 
                 # Extract live_id from the current tab's URL
                 current_live_id = current_url.split('/')[-1]
+
+                # check if the live-stream is off will stop this live
+                try:
+                    print(f"check live stream is active or no {current_live_id}")
+                    element = driver.find_element(By.CLASS_NAME, 'live--off-title')
+                    print("Class 'live--off-title' exists on the page.")
+                    stop_live(current_live_id)
+                except Exception as strm_exp:
+                    print("Class 'live--off-title' does not exist on the page.")
 
                 if current_live_id in bigo_live:
                     # Post the comment corresponding to the current live_id
@@ -802,15 +812,28 @@ def increment_run_time(phone_number):
         # Print an error message if there was an exception during the request
         print(f"An error occurred: {e}")
 
+
+def stop_live(live_id):
+    print(f"we have entered to stop_live {live_id}")
+    # Define the URL for the API endpoint
+    url = f"{BASE_URL}/live/stop"
+
+    # Define the data to be sent in the POST request
+    data = {
+        'live_id': live_id
+    }
+    try:
+        # Send a POST request to the API
+        response = requests.post(url, data=data, timeout=30)
+        print(response)
+    except requests.RequestException as e:
+        # Print an error message if there was an exception during the request
+        print(f"An error occurred: {e}")
+
 def periodic_update(driver):
     global UPDATE_INTERVAL
     print("UPDATE_INTERVAL", UPDATE_INTERVAL)
     while True:
-        # try:
-        #     element = driver.find_element(By.CLASS_NAME, 'live--off-title')
-        #     print("Class 'live--off-title' exists on the page.")
-        # except:
-        #     print("Class 'live--off-title' does not exist on the page.")
         updated_account = update_accounts(driver)
         print('periodic_update function', updated_account)
         time.sleep(UPDATE_INTERVAL * 60)
