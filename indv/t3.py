@@ -24,9 +24,9 @@ import concurrent.futures
 
 from webdriver_manager.firefox import GeckoDriverManager
 
-API_URL = "https://skeapp.jacadix.net/api/live-data"
-BASE_URL = "https://skeapp.jacadix.net/api"
-API_Comments_URL = "https://skeapp.jacadix.net/api/comments"
+API_URL = "https://ske.live/api/live-data"
+BASE_URL = "https://ske.live/api"
+API_Comments_URL = "https://ske.live/api/comments"
 
 CHECK_INTERVAL = 10
 
